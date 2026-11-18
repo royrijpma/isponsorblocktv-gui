@@ -22,7 +22,7 @@ CATEGORIES = ["sponsor", "selfpromo", "exclusive_access", "interaction",
               "intro", "outro", "preview", "filler", "music_offtopic", "hook"]
 PRESET_TAGS = ["latest", "close-ads-5s"]
 
-VERSION = "2026-11-18.15"
+VERSION = "2026-11-18.16"
 app = Flask(__name__)
 client = docker.from_env()
 file_lock = threading.Lock()
@@ -484,6 +484,12 @@ def auth():
     if a and a.username == "admin" and a.password == GUI_PASSWORD:
         return None
     return Response("Login vereist", 401, {"WWW-Authenticate": 'Basic realm="iSponsorBlockTV"'})
+
+
+@app.after_request
+def no_cache(resp):
+    resp.headers["Cache-Control"] = "no-store, max-age=0"
+    return resp
 
 
 # ---------- routes ----------
