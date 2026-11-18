@@ -104,7 +104,8 @@ function toast(msg, ok=true){
   clearTimeout(window._tt); window._tt=setTimeout(()=>t.classList.add('hidden'),6000);
 }
 function fmtUp(s){ if(s==null) return '-'; const d=Math.floor(s/86400),h=Math.floor(s%86400/3600),m=Math.floor(s%3600/60); return (d?d+'d ':'')+h+'u '+m+'m'; }
-function tile(label,val,accent){ return `<div class="bg-yt-card rounded-2xl p-4"><div class="text-xs text-yt-mute">${label}</div><div class="text-2xl font-medium mt-1 ${accent||''}">${val}</div></div>`; }
+function tile(label,val,accent,sub){ return `<div class="bg-yt-card rounded-2xl p-4"><div class="text-xs text-yt-mute">${label}</div><div class="text-2xl font-medium mt-1 ${accent||''}">${val}</div>${sub?`<div class="text-xs text-yt-mute mt-0.5">${sub}</div>`:''}</div>`; }
+function fmtDate(d){ if(!d) return ''; const [y,m,dd]=d.split('-'); return dd+'-'+m+'-'+y; }
 function fmtAgo(s){ if(s<90) return 'zojuist'; if(s<5400) return Math.round(s/60)+' min geleden'; if(s<172800) return Math.round(s/3600)+' u geleden'; return Math.round(s/86400)+' d geleden'; }
 function esc(s){ return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
 
@@ -116,11 +117,12 @@ async function refresh(){
   if(!window.tagInit && c.tag){ window.tagInit=true; const o=[...$('tagSel').options].find(x=>x.value===c.tag); if(o) $('tagSel').value=c.tag; else $('tagCustom').value=c.tag; }
   $('curTag').textContent=c.tag||'-'; $('curImg').textContent=c.image_id||'-';
   const s=r.stats;
+  const sub=n=>`totaal ${n} sinds ${fmtDate(s.since)}`;
   $('tiles').innerHTML =
     tile('Uptime',fmtUp(c.uptime)) +
-    tile('Gedempt · vandaag / totaal',`${s.today.muted} <span class="text-yt-mute text-lg">/ ${s.total.muted}</span>`) +
-    tile('Ads overgeslagen',`${s.today.skipped_ads} <span class="text-yt-mute text-lg">/ ${s.total.skipped_ads}</span>`,'text-yt-blue') +
-    tile('Segmenten overgeslagen',`${s.today.segments} <span class="text-yt-mute text-lg">/ ${s.total.segments}</span>`);
+    tile('Gedempt vandaag',s.today.muted,'',sub(s.total.muted)) +
+    tile('Ads overgeslagen vandaag',s.today.skipped_ads,'text-yt-blue',sub(s.total.skipped_ads)) +
+    tile('Segmenten overgeslagen vandaag',s.today.segments,'',sub(s.total.segments));
   if(!formDirty || !formLoaded){
     $('mute_ads').checked=r.config.mute_ads; $('skip_ads').checked=r.config.skip_ads;
     document.querySelectorAll('.cat').forEach(i=>i.checked=r.config.skip_categories.includes(i.value));

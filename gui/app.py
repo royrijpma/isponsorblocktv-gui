@@ -49,6 +49,12 @@ def load_stats():
         s = {}
     s.setdefault("total", {"muted": 0, "skipped_ads": 0, "segments": 0})
     s.setdefault("days", {})
+    if "since" not in s:
+        s["since"] = min(s["days"]) if s["days"] else today()
+        try:
+            atomic_write(STATS_PATH, s)
+        except OSError:
+            pass
     return s
 
 
@@ -494,7 +500,7 @@ def api_status():
     day = s["days"].get(today(), {"muted": 0, "skipped_ads": 0, "segments": 0})
     return jsonify({
         "container": container_info(),
-        "stats": {"total": s["total"], "today": day},
+        "stats": {"total": s["total"], "today": day, "since": s.get("since")},
         "config": {"mute_ads": cfg.get("mute_ads", False), "skip_ads": cfg.get("skip_ads", False),
                    "skip_categories": cfg.get("skip_categories", [])},
         "config_error": cfg_error,
