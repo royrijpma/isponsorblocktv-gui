@@ -207,6 +207,45 @@ async def _fetch_model(sid, name):
     return model
 
 
+# ---------- afstandsbediening (korte verbinding per commando) ----------
+CONTROL_ACTIONS = {"play", "pause", "next", "previous", "skip_ad", "volume", "play_video"}
+
+
+def parse_video_id(text):
+    text = (text or "").strip()
+    m = re.search(r"(?:v=|youtu\.be/|shorts/|embed/)([\w-]{11})", text)
+    if m:
+        return m.group(1)
+    if re.fullmatch(r"[\w-]{11}", text):
+        return text
+    raise ValueError("Geen geldige YouTube-link of video-ID.")
+
+
+async def _control(sid, name, action, value):
+    import asyncio
+    from pyytlounge import YtLoungeApi
+    async with YtLoungeApi("iSponsorBlockTV-GUI") as api:
+        await api.pair_with_screen_id(sid, name)
+        if not await api.is_available():
+            raise ValueError("De tv staat niet aan of is niet bereikbaar.")
+        if not await api.connect():
+            raise ValueError("Verbinden met de tv is mislukt.")
+        try:
+            if action == "volume":
+                ok = await api.set_volume(max(0, min(100, int(value))))
+            elif action == "play_video":
+                ok = await api.play_video(parse_video_id(value))
+            else:
+                ok = await getattr(api, action)()
+            await asyncio.sleep(0.4)
+        finally:
+            try:
+                await api.disconnect()
+            except Exception:
+                pass
+    return ok
+
+
 # ---------- online-status per tv (alleen lezen) ----------
 avail = {}
 
@@ -480,6 +519,23 @@ def api_dev_info():
             info[sid] = {"model": model, "fetched": int(time.time())}
             atomic_write(INFO_PATH, info)
         return jsonify({"ok": True, "message": f"Model: {model}"})
+    except Exception as e:
+        return jsonify({"ok": False, "message": str(e) or type(e).__name__}), 500
+
+
+@app.route("/api/devices/control", methods=["POST"])
+def api_dev_control():
+    import asyncio
+    d = request.get_json(force=True)
+    action = d.get("action")
+    if action not in CONTROL_ACTIONS:
+        return jsonify({"ok": False, "message": "Onbekende actie."}), 400
+    try:
+        dev = next((x for x in read_config().get("devices", []) if x.get("screen_id") == d.get("screen_id")), None)
+        if not dev:
+            return jsonify({"ok": False, "message": "Tv niet gevonden in config."}), 404
+        asyncio.run(_control(dev["screen_id"], dev.get("name"), action, d.get("value")))
+        return jsonify({"ok": True, "message": "Verstuurd."})
     except Exception as e:
         return jsonify({"ok": False, "message": str(e) or type(e).__name__}), 500
 

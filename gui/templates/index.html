@@ -140,6 +140,14 @@ async function refresh(){
         <div class="text-xs text-yt-mute mt-1 truncate">${d.video?esc(d.video):'—'}${d.ago!=null?' · laatste activiteit '+fmtAgo(d.ago):''}</div>
         <div class="text-xs text-yt-mute mt-1">${d.model?'Model: '+esc(d.model):`<button data-id="${esc(d.screen_id||'')}" onclick="getModel(this)" class="underline hover:text-white">Model ophalen</button>`}</div>
         <div class="text-xs text-[#717171] mt-1 line-clamp-2">${esc(d.last||'nog geen logregels')}</div>
+        <div class="mt-2 flex flex-wrap items-center gap-1.5" data-id="${esc(d.screen_id||'')}">
+          <button onclick="ctl(this,'previous')" title="Vorige" class="w-8 h-8 rounded-full bg-yt-line hover:bg-[#4a4a4a] text-sm">⏮</button>
+          <button onclick="ctl(this,'play')" title="Afspelen" class="w-8 h-8 rounded-full bg-yt-line hover:bg-[#4a4a4a] text-sm">▶</button>
+          <button onclick="ctl(this,'pause')" title="Pauze" class="w-8 h-8 rounded-full bg-yt-line hover:bg-[#4a4a4a] text-sm">⏸</button>
+          <button onclick="ctl(this,'next')" title="Volgende" class="w-8 h-8 rounded-full bg-yt-line hover:bg-[#4a4a4a] text-sm">⏭</button>
+          <button onclick="ctl(this,'volume')" title="Volume" class="px-3 h-8 rounded-full bg-yt-line hover:bg-[#4a4a4a] text-xs">Volume</button>
+          <button onclick="ctl(this,'play_video')" title="Start een link" class="px-3 h-8 rounded-full bg-yt-line hover:bg-[#4a4a4a] text-xs">Start link</button>
+        </div>
         <div class="mt-2 flex gap-2">
           <button data-id="${esc(d.screen_id||'')}" data-name="${esc(d.name)}" onclick="renameDev(this)" class="text-xs px-3 py-1 rounded-full bg-yt-line hover:bg-[#4a4a4a]">Hernoem</button>
           <button data-id="${esc(d.screen_id||'')}" data-name="${esc(d.name)}" onclick="removeDev(this)" class="text-xs px-3 py-1 rounded-full bg-[#3a1212] text-[#ff9a9a] hover:bg-[#4a1818]">Ontkoppel</button>
@@ -177,6 +185,12 @@ async function restartGui(){
     try { const x=await fetch('api/status',{cache:'no-store'}); if(x.ok && tries>3){ clearInterval(t); location.reload(); } } catch {}
     if(tries>90){ clearInterval(t); document.body.style.opacity=''; document.body.style.pointerEvents=''; toast('GUI reageert niet. Controleer de container in Portainer.',false); }
   },2000);
+}
+async function ctl(b,action){
+  const id=b.parentElement.dataset.id; let value=null;
+  if(action==='volume'){ value=prompt('Volume (0-100):'); if(value===null) return; }
+  if(action==='play_video'){ value=prompt('Plak een YouTube-link of video-ID:'); if(!value) return; }
+  b.disabled=true; try { const r=await post('api/devices/control',{screen_id:id,action,value}); toast(r.message,r.ok); } finally { b.disabled=false; }
 }
 async function renameDev(b){ const n=prompt('Nieuwe naam:',b.dataset.name); if(!n) return;
   const r=await post('api/devices/rename',{screen_id:b.dataset.id,name:n}); toast(r.message,r.ok); refresh(); }
