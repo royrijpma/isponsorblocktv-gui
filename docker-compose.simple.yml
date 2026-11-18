@@ -32,7 +32,7 @@ services:
       - sh
       - -c
       - |
-        pip install --no-cache-dir Flask==3.0.3 docker==7.1.0 gunicorn==22.0.0
         mkdir -p templates
-        python -c "import urllib.request as u; b='https://raw.githubusercontent.com/royrijpma/isponsorblocktv-gui/main/gui/'; u.urlretrieve(b+'app.py','app.py'); u.urlretrieve(b+'templates/index.html','templates/index.html')"
+        python -c "import urllib.request as u; b='https://raw.githubusercontent.com/royrijpma/isponsorblocktv-gui/main/gui/'; u.urlretrieve(b+'requirements.txt','requirements.txt'); u.urlretrieve(b+'app.py','app.py'); u.urlretrieve(b+'templates/index.html','templates/index.html')"
+        pip install --no-cache-dir -r requirements.txt
         exec gunicorn -w 1 --threads 8 -b 0.0.0.0:8095 app:app

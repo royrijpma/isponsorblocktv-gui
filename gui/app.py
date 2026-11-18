@@ -133,6 +133,34 @@ def save_config(mute_ads, skip_ads, categories):
         atomic_write(CONFIG_PATH, cfg)
 
 
+def modify_devices(fn):
+    """Pas config['devices'] aan, bewaar een back-up en herstart de container."""
+    with file_lock:
+        cfg = read_config()
+        with open(CONFIG_PATH + ".bak", "w", encoding="utf-8") as f:
+            json.dump(cfg, f, indent=4, ensure_ascii=False)
+        cfg["devices"] = fn(list(cfg.get("devices", [])))
+        atomic_write(CONFIG_PATH, cfg)
+    client.containers.get(TARGET).restart(timeout=15)
+
+
+async def _pair(code):
+    from pyytlounge import YtLoungeApi
+    api = YtLoungeApi("iSponsorBlockTV")
+    ok = await api.pair(code)
+    if not ok:
+        raise ValueError("Koppelen mislukt: controleer de code op de tv.")
+    sid = api.auth.screen_id
+    name = getattr(api, "screen_name", None) or "YouTube on TV"
+    close = getattr(api, "close", None)
+    if close:
+        try:
+            await close()
+        except Exception:
+            pass
+    return sid, name
+
+
 # ---------- container ----------
 def container_info():
     try:
@@ -174,7 +202,7 @@ def device_status(cfg):
                 video = m.group(1)
                 break
         shown = last.split(" - ", 3)[-1] if last else ""
-        out.append({"name": name, "connected": connected, "video": video, "last": shown[-160:]})
+        out.append({"screen_id": d.get("screen_id"), "name": name, "connected": connected, "video": video, "last": shown[-160:]})
     return out
 
 
@@ -255,6 +283,57 @@ def api_config():
         save_config(d.get("mute_ads"), d.get("skip_ads"), d.get("skip_categories", []))
         client.containers.get(TARGET).restart(timeout=15)
         return jsonify({"ok": True, "message": "Opgeslagen en herstart."})
+    except Exception as e:
+        return jsonify({"ok": False, "message": str(e)}), 500
+
+
+@app.route("/api/devices/remove", methods=["POST"])
+def api_dev_remove():
+    sid = (request.get_json(force=True).get("screen_id") or "")
+    try:
+        modify_devices(lambda ds: [d for d in ds if d.get("screen_id") != sid])
+        return jsonify({"ok": True, "message": "Tv ontkoppeld en herstart."})
+    except Exception as e:
+        return jsonify({"ok": False, "message": str(e)}), 500
+
+
+@app.route("/api/devices/rename", methods=["POST"])
+def api_dev_rename():
+    d = request.get_json(force=True)
+    sid, name = d.get("screen_id"), (d.get("name") or "").strip()
+    if not name:
+        return jsonify({"ok": False, "message": "Naam is leeg."}), 400
+
+    def fn(ds):
+        for x in ds:
+            if x.get("screen_id") == sid:
+                x["name"] = name
+        return ds
+    try:
+        modify_devices(fn)
+        return jsonify({"ok": True, "message": "Naam aangepast en herstart."})
+    except Exception as e:
+        return jsonify({"ok": False, "message": str(e)}), 500
+
+
+@app.route("/api/devices/add", methods=["POST"])
+def api_dev_add():
+    import asyncio
+    d = request.get_json(force=True)
+    code = re.sub(r"\D", "", d.get("code") or "")
+    if len(code) < 6:
+        return jsonify({"ok": False, "message": "Vul de tv-code in (cijfers)."}), 400
+    try:
+        sid, auto_name = asyncio.run(_pair(code))
+        name = (d.get("name") or "").strip() or auto_name
+
+        def fn(ds):
+            if any(x.get("screen_id") == sid for x in ds):
+                raise ValueError("Deze tv is al gekoppeld.")
+            ds.append({"screen_id": sid, "name": name, "offset": 0})
+            return ds
+        modify_devices(fn)
+        return jsonify({"ok": True, "message": f"'{name}' gekoppeld en herstart."})
     except Exception as e:
         return jsonify({"ok": False, "message": str(e)}), 500
 

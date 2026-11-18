@@ -48,6 +48,11 @@
   <section class="bg-slate-900 border border-slate-800 rounded-xl p-4">
     <h2 class="font-medium mb-3">Tv's</h2>
     <div id="devices" class="grid md:grid-cols-2 gap-3"></div>
+    <div class="mt-4 pt-3 border-t border-slate-800 flex flex-wrap gap-2">
+      <input id="pairCode" placeholder="Tv-code (YouTube &rarr; Instellingen &rarr; Koppelen met tv-code)" class="flex-1 min-w-[16rem] bg-slate-800 rounded-lg p-2 text-sm">
+      <input id="pairName" placeholder="Naam (optioneel)" class="bg-slate-800 rounded-lg p-2 text-sm">
+      <button onclick="addDev()" class="bg-indigo-600 hover:bg-indigo-500 rounded-lg px-4 py-2 text-sm font-medium">Tv koppelen</button>
+    </div>
   </section>
 
   <section class="bg-slate-900 border border-slate-800 rounded-xl p-4">
@@ -89,7 +94,9 @@ async function refresh(){
   }
   $('devices').innerHTML = r.devices.length ? r.devices.map(d=>`
     <div class="bg-slate-800/60 rounded-lg p-3">
-      <div class="flex items-center gap-2"><span class="h-2.5 w-2.5 rounded-full ${d.connected?'bg-emerald-400':'bg-slate-500'}"></span><b>${esc(d.name)}</b></div>
+      <div class="flex items-center gap-2"><span class="h-2.5 w-2.5 rounded-full ${d.connected?'bg-emerald-400':'bg-slate-500'}"></span><b class="flex-1">${esc(d.name)}</b>
+        <button data-id="${esc(d.screen_id||'')}" data-name="${esc(d.name)}" onclick="renameDev(this)" class="text-xs text-slate-400 hover:text-white">hernoem</button>
+        <button data-id="${esc(d.screen_id||'')}" data-name="${esc(d.name)}" onclick="removeDev(this)" class="text-xs text-red-400 hover:text-red-300">ontkoppel</button></div>
       <div class="text-xs text-slate-400 mt-1">Video: ${d.video?esc(d.video):'-'}</div>
       <div class="text-xs text-slate-500 mt-1 truncate">${esc(d.last||'nog geen logregels')}</div>
     </div>`).join('') : '<div class="text-sm text-slate-500">Geen apparaten in config.json</div>';
@@ -109,6 +116,13 @@ async function applyTag(){
   const b=$('updBtn'); b.disabled=true; b.textContent='Bezig met pullen…';
   try { const r=await post('api/update',{tag}); toast(r.message,r.ok); } finally { b.disabled=false; b.textContent='Toepassen / Check & Update'; refresh(); }
 }
+async function removeDev(b){ if(!confirm('Tv "'+b.dataset.name+'" ontkoppelen? De container wordt herstart.')) return;
+  const r=await post('api/devices/remove',{screen_id:b.dataset.id}); toast(r.message,r.ok); refresh(); }
+async function renameDev(b){ const n=prompt('Nieuwe naam:',b.dataset.name); if(!n) return;
+  const r=await post('api/devices/rename',{screen_id:b.dataset.id,name:n}); toast(r.message,r.ok); refresh(); }
+async function addDev(){ const code=$('pairCode').value; if(!code) return toast('Vul eerst de tv-code in.',false);
+  toast('Bezig met koppelen…'); const r=await post('api/devices/add',{code,name:$('pairName').value});
+  toast(r.message,r.ok); if(r.ok){$('pairCode').value='';$('pairName').value='';} refresh(); }
 refresh(); setInterval(refresh,3000);
 </script>
 </body>
