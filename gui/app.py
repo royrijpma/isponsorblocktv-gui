@@ -175,6 +175,38 @@ async def _pair(code):
         return api.auth.screen_id, name
 
 
+# ---------- model per tv (eenmalig, korte verbinding) ----------
+INFO_PATH = os.path.join(DATA_DIR, "device_info.json")
+
+
+def load_info():
+    try:
+        with open(INFO_PATH, encoding="utf-8") as f:
+            return json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):
+        return {}
+
+
+async def _fetch_model(sid, name):
+    from pyytlounge import YtLoungeApi
+    async with YtLoungeApi("iSponsorBlockTV-GUI") as api:
+        await api.pair_with_screen_id(sid, name)
+        if not await api.is_available():
+            raise ValueError("De tv staat niet aan of is niet bereikbaar.")
+        if not await api.connect():
+            raise ValueError("Verbinden met de tv is mislukt.")
+        try:
+            model = api.screen_device_name
+        finally:
+            try:
+                await api.disconnect()
+            except Exception:
+                pass
+    if not model:
+        raise ValueError("De tv geeft geen modelinformatie door.")
+    return model
+
+
 # ---------- online-status per tv (alleen lezen) ----------
 avail = {}
 
@@ -295,6 +327,7 @@ def device_status(cfg):
                 pass
         out.append({"screen_id": d.get("screen_id"), "name": name, "connected": connected,
                     "online": avail.get(d.get("screen_id")), "ago": ago,
+                    "model": load_info().get(d.get("screen_id") or "", {}).get("model"),
                     "video": video, "info": video_info(video) if video else None,
                     "last": shown[-160:]})
     return out
@@ -431,6 +464,24 @@ def api_dev_add():
         return jsonify({"ok": True, "message": f"'{name}' gekoppeld en herstart."})
     except Exception as e:
         return jsonify({"ok": False, "message": str(e)}), 500
+
+
+@app.route("/api/devices/info", methods=["POST"])
+def api_dev_info():
+    import asyncio
+    sid = request.get_json(force=True).get("screen_id") or ""
+    try:
+        dev = next((x for x in read_config().get("devices", []) if x.get("screen_id") == sid), None)
+        if not dev:
+            return jsonify({"ok": False, "message": "Tv niet gevonden in config."}), 404
+        model = asyncio.run(_fetch_model(sid, dev.get("name")))
+        with file_lock:
+            info = load_info()
+            info[sid] = {"model": model, "fetched": int(time.time())}
+            atomic_write(INFO_PATH, info)
+        return jsonify({"ok": True, "message": f"Model: {model}"})
+    except Exception as e:
+        return jsonify({"ok": False, "message": str(e) or type(e).__name__}), 500
 
 
 @app.route("/api/update", methods=["POST"])

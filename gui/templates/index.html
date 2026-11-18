@@ -137,6 +137,7 @@ async function refresh(){
           <span class="text-xs ${d.online===true?'text-emerald-400':'text-yt-mute'}">${d.online===true?'Online':(d.online===false?'Offline':'status onbekend')}</span></div>
         ${d.info&&d.info.title?`<div class="text-sm font-medium mt-1 line-clamp-2">${esc(d.info.title)}</div><div class="text-xs text-yt-mute">${esc(d.info.channel||'')}</div>`:''}
         <div class="text-xs text-yt-mute mt-1 truncate">${d.video?esc(d.video):'—'}${d.ago!=null?' · laatste activiteit '+fmtAgo(d.ago):''}</div>
+        <div class="text-xs text-yt-mute mt-1">${d.model?'Model: '+esc(d.model):`<button data-id="${esc(d.screen_id||'')}" onclick="getModel(this)" class="underline hover:text-white">Model ophalen</button>`}</div>
         <div class="text-xs text-[#717171] mt-1 line-clamp-2">${esc(d.last||'nog geen logregels')}</div>
         <div class="mt-2 flex gap-2">
           <button data-id="${esc(d.screen_id||'')}" data-name="${esc(d.name)}" onclick="renameDev(this)" class="text-xs px-3 py-1 rounded-full bg-yt-line hover:bg-[#4a4a4a]">Hernoem</button>
@@ -166,6 +167,7 @@ async function applyTag(){
 }
 async function removeDev(b){ if(!confirm('Tv "'+b.dataset.name+'" ontkoppelen? De container wordt herstart.')) return;
   const r=await post('api/devices/remove',{screen_id:b.dataset.id}); toast(r.message,r.ok); refresh(); }
+async function getModel(b){ b.textContent='Bezig…'; const r=await post('api/devices/info',{screen_id:b.dataset.id}); toast(r.message,r.ok); refresh(); }
 async function renameDev(b){ const n=prompt('Nieuwe naam:',b.dataset.name); if(!n) return;
   const r=await post('api/devices/rename',{screen_id:b.dataset.id,name:n}); toast(r.message,r.ok); refresh(); }
 async function addDev(){ const code=$('pairCode').value; if(!code) return toast('Vul eerst de tv-code in.',false);
