@@ -307,6 +307,8 @@ async def _control(sid, name, action, value):
             else:
                 ok = await getattr(api, action)()
             await asyncio.sleep(0.4)
+            if not ok:
+                raise ValueError("De tv heeft het commando niet aangenomen.")
         finally:
             try:
                 await api.disconnect()

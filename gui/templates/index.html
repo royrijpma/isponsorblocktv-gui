@@ -36,7 +36,7 @@ tailwind.config = { darkMode: 'class', theme: { extend: { fontFamily: { sans: ['
 </header>
 
 <main class="max-w-6xl mx-auto p-3 sm:p-4 space-y-4 overflow-x-hidden">
-  <div id="toast" class="hidden px-4 py-3 rounded-xl text-sm"></div>
+  
 
   <section class="grid grid-cols-2 md:grid-cols-4 gap-3" id="tiles"></section>
 
@@ -92,6 +92,7 @@ tailwind.config = { darkMode: 'class', theme: { extend: { fontFamily: { sans: ['
     <pre id="logs" class="scroll text-xs bg-black/60 rounded-xl p-3 h-64 overflow-auto whitespace-pre-wrap text-[#cfcfcf]"></pre>
   </section>
 </main>
+<div id="toast" class="hidden fixed bottom-4 left-4 right-4 sm:left-auto sm:max-w-md z-50 px-4 py-3 rounded-xl text-sm shadow-lg"></div>
 
 <script>
 const $ = id => document.getElementById(id);
@@ -100,7 +101,7 @@ document.addEventListener('change', e => { if (e.target.closest('section')) form
 
 function toast(msg, ok=true){
   const t=$('toast'); t.textContent=msg;
-  t.className='px-4 py-3 rounded-xl text-sm '+(ok?'bg-[#0d2b1a] text-[#7ee2a8]':'bg-[#3a1212] text-[#ff9a9a]');
+  t.className='fixed bottom-4 left-4 right-4 sm:left-auto sm:max-w-md z-50 px-4 py-3 rounded-xl text-sm shadow-lg '+(ok?'bg-[#0d2b1a] text-[#7ee2a8]':'bg-[#3a1212] text-[#ff9a9a]');
   clearTimeout(window._tt); window._tt=setTimeout(()=>t.classList.add('hidden'),6000);
 }
 function fmtUp(s){ if(s==null) return '-'; const d=Math.floor(s/86400),h=Math.floor(s%86400/3600),m=Math.floor(s%3600/60); return (d?d+'d ':'')+h+'u '+m+'m'; }
