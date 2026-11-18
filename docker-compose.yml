@@ -1,8 +1,10 @@
 # Portainer-stack voor iSponsorBlockTV + sidecar web-GUI.
 # Pas het volume-pad aan als je data ergens anders staat.
+version: "3.8"
+
 services:
   isponsorblocktv:
-    image: ghcr.io/dmunozv04/isponsorblocktv:latest
+    image: ghcr.io/dmunozv04/isponsorblocktv:close-ads-5s
     container_name: isponsorblocktv
     network_mode: host
     restart: unless-stopped
