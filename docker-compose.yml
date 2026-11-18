@@ -12,8 +12,7 @@ services:
       - /Volume1/docker/isponsorblocktv/data:/app/data
 
   isponsorblocktv-gui:
-    build: ./gui
-    image: isponsorblocktv-gui:local
+    image: ghcr.io/royrijpma/isponsorblocktv-gui:latest
     container_name: isponsorblocktv-gui
     restart: unless-stopped
     ports:

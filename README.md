@@ -15,15 +15,13 @@ isponsorblocktv-gui/
 
 ## Starten op de QNAP
 
-1. Zet de map op de NAS, bijvoorbeeld `/Volume1/docker/isponsorblocktv-gui/`.
-2. Zorg dat `/Volume1/docker/isponsorblocktv/data/config.json` bestaat (maak die eerst met de officiële setup als je dat nog niet deed).
-3. Build en start via SSH:
-   ```bash
-   cd /Volume1/docker/isponsorblocktv-gui
-   docker compose up -d --build
-   ```
-   Of in Portainer: Stacks → Add stack → Repository/Upload, en zorg dat `./gui` bij de stack staat (build werkt alleen met de bestanden naast de compose).
-4. Open `http://<nas-ip>:8095`.
+De image wordt door GitHub Actions gebouwd (amd64 + arm64) en staat op `ghcr.io/royrijpma/isponsorblocktv-gui:latest`. Je hoeft op de NAS dus niets te bouwen.
+
+1. Zorg dat `/Volume1/docker/isponsorblocktv/data/config.json` bestaat (maak die eerst met de officiële setup als je dat nog niet deed).
+2. Plak `docker-compose.yml` in Portainer (Stacks → Add stack → Web editor) en klik op Deploy.
+3. Open `http://<nas-ip>:8095`.
+
+Eenmalig: zet het package op publiek via GitHub → profiel → Packages → isponsorblocktv-gui → Package settings → Change visibility → Public. Daarna kan elke machine de image zonder login pullen.
 
 ## Goed om te weten
 
