@@ -23,10 +23,10 @@ tailwind.config = { darkMode: 'class', theme: { extend: { fontFamily: { sans: ['
 <body class="bg-yt-bg text-[#f1f1f1] min-h-screen overflow-x-hidden">
 
 <header class="sticky top-0 z-10 bg-yt-bg/95 backdrop-blur border-b border-yt-line/60">
-  <div class="max-w-6xl mx-auto px-4 h-14 flex items-center gap-3">
+  <div class="max-w-6xl mx-auto px-3 sm:px-4 h-14 flex items-center gap-2 sm:gap-3">
     <div class="flex items-center gap-1.5">
       <svg width="30" height="21" viewBox="0 0 30 21"><rect width="30" height="21" rx="6" fill="#ff0000"/><path d="M12 6l8 4.5-8 4.5z" fill="#fff"/></svg>
-      <span class="text-lg font-bold tracking-tight">iSponsorBlockTV</span>
+      <span class="text-base sm:text-lg font-bold tracking-tight">iSponsorBlockTV</span>
     </div>
     <span class="text-yt-mute text-sm hidden sm:inline">dashboard</span>
     <div class="flex-1"></div>
@@ -144,13 +144,17 @@ async function refresh(){
         ${d.info&&d.info.title?`<div class="text-sm font-medium mt-1 line-clamp-2">${esc(d.info.title)}</div><div class="text-xs text-yt-mute">${esc(d.info.channel||'')}</div>`:''}
         <div class="text-xs text-yt-mute mt-1 truncate">${d.video?esc(d.video):'—'}${d.ago!=null?' · laatste activiteit '+fmtAgo(d.ago):''}</div>
         <div class="text-xs text-yt-mute mt-1">${d.model?'Model: '+esc(d.model):`<button data-id="${esc(d.screen_id||'')}" onclick="getModel(this)" class="underline hover:text-white">Model ophalen</button>`}</div>
-        <div class="text-xs text-[#717171] mt-1 line-clamp-2 break-all">${esc(d.last||'nog geen logregels')}</div>
+        <div class="text-xs text-[#717171] mt-1 line-clamp-2 break-words">${esc(d.last||'nog geen logregels')}</div>
         <div class="mt-2 flex flex-wrap items-center gap-1.5" data-id="${esc(d.screen_id||'')}">
           <button onclick="ctl(this,'previous')" title="Vorige" class="w-8 h-8 rounded-full bg-yt-line hover:bg-[#4a4a4a] text-sm">⏮</button>
           <button onclick="ctl(this,'play')" title="Afspelen" class="w-8 h-8 rounded-full bg-yt-line hover:bg-[#4a4a4a] text-sm">▶</button>
           <button onclick="ctl(this,'pause')" title="Pauze" class="w-8 h-8 rounded-full bg-yt-line hover:bg-[#4a4a4a] text-sm">⏸</button>
           <button onclick="ctl(this,'next')" title="Volgende" class="w-8 h-8 rounded-full bg-yt-line hover:bg-[#4a4a4a] text-sm">⏭</button>
-          <button onclick="ctl(this,'volume')" title="Volume" class="px-3 h-8 rounded-full bg-yt-line hover:bg-[#4a4a4a] text-xs">Volume</button>
+          <label class="flex items-center gap-2 h-8 px-3 rounded-full bg-yt-line text-xs" title="Volume">🔊
+            <input type="range" min="0" max="100" value="${(window._vol||{})[d.screen_id]??30}" data-id="${esc(d.screen_id||'')}"
+              oninput="this.nextElementSibling.textContent=this.value" onchange="volSet(this)"
+              onpointerdown="window._busy=true" onpointerup="window._busy=false" onpointercancel="window._busy=false"
+              class="w-24 accent-[#3ea6ff]"><span class="w-6 text-right">${(window._vol||{})[d.screen_id]??30}</span></label>
           <button onclick="ctl(this,'play_video')" title="Start een link" class="px-3 h-8 rounded-full bg-yt-line hover:bg-[#4a4a4a] text-xs">Start link</button>
         </div>
         <div class="mt-2 flex gap-2">
@@ -197,6 +201,13 @@ async function restartGui(){
     try { const x=await fetch('api/status',{cache:'no-store'}); if(x.ok && tries>3){ clearInterval(t); location.reload(); } } catch {}
     if(tries>90){ clearInterval(t); document.body.style.opacity=''; document.body.style.pointerEvents=''; toast('GUI reageert niet. Controleer de container in Portainer.',false); }
   },2000);
+}
+async function volSet(el){
+  window._vol=window._vol||{}; window._vol[el.dataset.id]=el.value; window._devHtml=null;
+  try { const r=await post('api/devices/control',{screen_id:el.dataset.id,action:'volume',value:el.value});
+    toast(r.ok?('Volume '+el.value):r.message,r.ok); if(!r.ok) alert(r.message); }
+  catch(e){ alert('Geen verbinding met de GUI: '+e); }
+  finally { window._busy=false; }
 }
 async function ctl(b,action){
   const id=b.parentElement.dataset.id; let value=null;
