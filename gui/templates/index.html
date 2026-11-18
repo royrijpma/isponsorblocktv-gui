@@ -129,7 +129,7 @@ async function refresh(){
     document.querySelectorAll('.cat').forEach(i=>i.checked=r.config.skip_categories.includes(i.value));
     formLoaded=true;
   }
-  $('devices').innerHTML = r.devices.length ? r.devices.map(d=>`
+  const devHtml = r.devices.length ? r.devices.map(d=>`
     <div class="flex flex-col sm:flex-row gap-3 bg-yt-hover/50 rounded-xl p-3 min-w-0">
       <div class="relative w-full sm:w-40 shrink-0 aspect-video rounded-lg overflow-hidden bg-black">
         ${d.video?`<img src="https://i.ytimg.com/vi/${esc(d.video)}/mqdefault.jpg" class="w-full h-full object-cover" onerror="this.style.display='none'">`
@@ -159,6 +159,8 @@ async function refresh(){
         </div>
       </div>
     </div>`).join('') : '<div class="text-sm text-yt-mute">Geen apparaten in config.json</div>';
+  // Alleen opnieuw tekenen als er iets veranderd is, en nooit tijdens een tik of actie.
+  if(devHtml!==window._devHtml && !window._busy){ window._devHtml=devHtml; $('devices').innerHTML=devHtml; }
   $('paused').innerHTML=(r.paused||[]).map(p=>`<div class="flex items-center justify-between gap-3 rounded-xl px-4 py-3 bg-[#3a2a08] text-[#ffd479]">
       <span><b>${esc(p.name||'Tv')}</b> staat op bypass: ads en sponsors worden niet geblokkeerd · nog ${fmtLeft(p.left)}</span>
       <button data-id="${esc(p.screen_id)}" onclick="resumeDev(this)" class="text-sm px-3 py-1 rounded-full bg-[#ffd479] text-black font-medium">Bypass stoppen</button></div>`).join('');
@@ -198,12 +200,13 @@ async function ctl(b,action){
   const id=b.parentElement.dataset.id; let value=null;
   if(action==='volume'){ value=prompt('Volume (0-100):'); if(value===null) return; }
   if(action==='play_video'){ value=prompt('Plak een YouTube-link of video-ID:'); if(!value) return; }
-  b.disabled=true; try { const r=await post('api/devices/control',{screen_id:id,action,value}); toast(r.message,r.ok); } finally { b.disabled=false; }
+  const old=b.textContent; window._busy=true; b.disabled=true; b.textContent='…';
+  try {
+    const r=await post('api/devices/control',{screen_id:id,action,value});
+    b.textContent=r.ok?'✓':'✗'; toast(r.message,r.ok); if(!r.ok) alert(r.message);
+  } catch(e) { b.textContent='✗'; alert('Geen verbinding met de GUI: '+e); }
+  finally { setTimeout(()=>{ b.textContent=old; b.disabled=false; window._busy=false; },1200); }
 }
-function fmtLeft(s){ const m=Math.ceil(s/60); return m>=90?Math.round(m/60)+' u':m+' min'; }
-async function pauseDev(b){ const m=prompt('Hoeveel minuten bypass voor "'+b.dataset.name+'"? De tv blijft gekoppeld. iSponsorBlockTV wordt kort herstart.','30'); if(!m) return;
-  const r=await post('api/devices/pause',{screen_id:b.dataset.id,minutes:m}); toast(r.message,r.ok); refresh(); }
-async function resumeDev(b){ const r=await post('api/devices/resume',{screen_id:b.dataset.id}); toast(r.message,r.ok); refresh(); }
 async function renameDev(b){ const n=prompt('Nieuwe naam:',b.dataset.name); if(!n) return;
   const r=await post('api/devices/rename',{screen_id:b.dataset.id,name:n}); toast(r.message,r.ok); refresh(); }
 async function addDev(){ const code=$('pairCode').value; if(!code) return toast('Vul eerst de tv-code in.',false);
