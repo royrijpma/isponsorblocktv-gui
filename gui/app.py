@@ -155,19 +155,42 @@ def modify_devices(fn):
 
 async def _pair(code):
     from pyytlounge import YtLoungeApi
-    api = YtLoungeApi("iSponsorBlockTV")
-    ok = await api.pair(code)
-    if not ok:
-        raise ValueError("Koppelen mislukt: controleer de code op de tv.")
-    sid = api.auth.screen_id
-    name = getattr(api, "screen_name", None) or "YouTube on TV"
-    close = getattr(api, "close", None)
-    if close:
+    async with YtLoungeApi("iSponsorBlockTV") as api:
+        if not await api.pair(code):
+            raise ValueError("Koppelen mislukt: controleer de code op de tv.")
+        name = getattr(api, "screen_name", None) or "YouTube on TV"
+        return api.auth.screen_id, name
+
+
+# ---------- online-status per tv (alleen lezen) ----------
+avail = {}
+
+
+async def _check_all(devices):
+    from pyytlounge import YtLoungeApi
+    for d in devices:
+        sid = d.get("screen_id")
+        if not sid:
+            continue
         try:
-            await close()
+            async with YtLoungeApi("iSponsorBlockTV-GUI") as api:
+                await api.pair_with_screen_id(sid, d.get("name"))
+                avail[sid] = await api.is_available()
+        except Exception:
+            avail[sid] = None
+
+
+def availability_loop():
+    import asyncio
+    while True:
+        try:
+            asyncio.run(_check_all(read_config().get("devices", [])))
         except Exception:
             pass
-    return sid, name
+        time.sleep(30)
+
+
+threading.Thread(target=availability_loop, daemon=True, name="availability").start()
 
 
 # ---------- container ----------
@@ -226,7 +249,15 @@ def device_status(cfg):
                 video = m.group(1)
                 break
         shown = last.split(" - ", 3)[-1] if last else ""
+        ago = None
+        m = re.match(r"(\d{4}-\d\d-\d\d \d\d:\d\d:\d\d)", last)
+        if m:
+            try:
+                ago = int((datetime.now() - datetime.strptime(m.group(1), "%Y-%m-%d %H:%M:%S")).total_seconds())
+            except ValueError:
+                pass
         out.append({"screen_id": d.get("screen_id"), "name": name, "connected": connected,
+                    "online": avail.get(d.get("screen_id")), "ago": ago,
                     "video": video, "last": shown[-160:]})
     return out
 
