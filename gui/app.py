@@ -22,6 +22,7 @@ CATEGORIES = ["sponsor", "selfpromo", "exclusive_access", "interaction",
               "intro", "outro", "preview", "filler", "music_offtopic", "hook"]
 PRESET_TAGS = ["latest", "close-ads-5s"]
 
+VERSION = "2026-11-18.15"
 app = Flask(__name__)
 client = docker.from_env()
 file_lock = threading.Lock()
@@ -511,6 +512,7 @@ def api_status():
         "config_error": cfg_error,
         "devices": device_status(cfg),
         "logs": list(log_buffer)[-30:],
+        "version": VERSION,
         "collector": dict(collector_state, lines=len(log_buffer)),
         "paused": [{"screen_id": k, "name": v["device"].get("name"), "left": max(0, int(v["until"] - time.time()))}
                    for k, v in load_pause().items()],

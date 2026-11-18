@@ -91,6 +91,7 @@ tailwind.config = { darkMode: 'class', theme: { extend: { fontFamily: { sans: ['
     <div id="logInfo" class="hidden mb-3 text-sm rounded-xl px-3 py-2 bg-[#3a1212] text-[#ff9a9a]"></div>
     <pre id="logs" class="scroll text-xs bg-black/60 rounded-xl p-3 h-64 overflow-auto whitespace-pre-wrap text-[#cfcfcf]"></pre>
   </section>
+  <footer class="text-center text-xs text-[#717171] pb-16 pt-2">Versie <span id="ver">?</span></footer>
 </main>
 <div id="toast" class="hidden fixed bottom-4 left-4 right-4 sm:left-auto sm:max-w-md z-50 px-4 py-3 rounded-xl text-sm shadow-lg"></div>
 
@@ -164,6 +165,7 @@ async function refresh(){
   $('paused').innerHTML=(r.paused||[]).map(p=>`<div class="flex items-center justify-between gap-3 rounded-xl px-4 py-3 bg-[#3a2a08] text-[#ffd479]">
       <span><b>${esc(p.name||'Tv')}</b> staat op bypass: ads en sponsors worden niet geblokkeerd · nog ${fmtLeft(p.left)}</span>
       <button data-id="${esc(p.screen_id)}" onclick="resumeDev(this)" class="text-sm px-3 py-1 rounded-full bg-[#ffd479] text-black font-medium">Bypass stoppen</button></div>`).join('');
+  $('ver').textContent=r.version||'oud (geen versienummer)';
   const k=r.collector||{}, li=$('logInfo');
   if(k.error){ li.textContent='Log-lezer: '+k.error; li.classList.remove('hidden'); }
   else if(!r.logs.length){ li.textContent='Verbonden met de container ('+(k.container||'?')+'), maar er zijn nog geen logregels ontvangen. Geladen uit oude logs: '+(k.prefilled||0)+'.'; li.className='mb-3 text-sm rounded-xl px-3 py-2 bg-yt-hover text-yt-mute'; }
