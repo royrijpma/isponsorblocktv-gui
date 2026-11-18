@@ -611,7 +611,7 @@ def api_dev_pause():
         if not 1 <= minutes <= 1440:
             raise ValueError("Kies 1 tot 1440 minuten.")
         pause_device(d.get("screen_id"), minutes)
-        return jsonify({"ok": True, "message": f"Blokkering gepauzeerd voor {minutes} min."})
+        return jsonify({"ok": True, "message": f"Bypass actief voor {minutes} min."})
     except Exception as e:
         return jsonify({"ok": False, "message": str(e) or type(e).__name__}), 500
 
@@ -620,7 +620,7 @@ def api_dev_pause():
 def api_dev_resume():
     try:
         ok = resume_device(request.get_json(force=True).get("screen_id"))
-        return jsonify({"ok": ok, "message": "Hervat." if ok else "Deze tv was niet gepauzeerd."})
+        return jsonify({"ok": ok, "message": "Bypass gestopt." if ok else "Deze tv was niet gepauzeerd."})
     except Exception as e:
         return jsonify({"ok": False, "message": str(e) or type(e).__name__}), 500
 

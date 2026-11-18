@@ -150,15 +150,15 @@ async function refresh(){
           <button onclick="ctl(this,'play_video')" title="Start een link" class="px-3 h-8 rounded-full bg-yt-line hover:bg-[#4a4a4a] text-xs">Start link</button>
         </div>
         <div class="mt-2 flex gap-2">
-          <button data-id="${esc(d.screen_id||'')}" data-name="${esc(d.name)}" onclick="pauseDev(this)" class="text-xs px-3 py-1 rounded-full bg-yt-line hover:bg-[#4a4a4a]">Pauzeer blokkering</button>
+          <button data-id="${esc(d.screen_id||'')}" data-name="${esc(d.name)}" onclick="pauseDev(this)" class="text-xs px-3 py-1 rounded-full bg-yt-line hover:bg-[#4a4a4a]">Bypass</button>
           <button data-id="${esc(d.screen_id||'')}" data-name="${esc(d.name)}" onclick="renameDev(this)" class="text-xs px-3 py-1 rounded-full bg-yt-line hover:bg-[#4a4a4a]">Hernoem</button>
           <button data-id="${esc(d.screen_id||'')}" data-name="${esc(d.name)}" onclick="removeDev(this)" class="text-xs px-3 py-1 rounded-full bg-[#3a1212] text-[#ff9a9a] hover:bg-[#4a1818]">Ontkoppel</button>
         </div>
       </div>
     </div>`).join('') : '<div class="text-sm text-yt-mute">Geen apparaten in config.json</div>';
   $('paused').innerHTML=(r.paused||[]).map(p=>`<div class="flex items-center justify-between gap-3 rounded-xl px-4 py-3 bg-[#3a2a08] text-[#ffd479]">
-      <span><b>${esc(p.name||'Tv')}</b> staat gepauzeerd: iSponsorBlockTV doet hier niets · nog ${fmtLeft(p.left)}</span>
-      <button data-id="${esc(p.screen_id)}" onclick="resumeDev(this)" class="text-sm px-3 py-1 rounded-full bg-[#ffd479] text-black font-medium">Hervat nu</button></div>`).join('');
+      <span><b>${esc(p.name||'Tv')}</b> staat op bypass: ads en sponsors worden niet geblokkeerd · nog ${fmtLeft(p.left)}</span>
+      <button data-id="${esc(p.screen_id)}" onclick="resumeDev(this)" class="text-sm px-3 py-1 rounded-full bg-[#ffd479] text-black font-medium">Bypass stoppen</button></div>`).join('');
   const k=r.collector||{}, li=$('logInfo');
   if(k.error){ li.textContent='Log-lezer: '+k.error; li.classList.remove('hidden'); }
   else if(!r.logs.length){ li.textContent='Verbonden met de container ('+(k.container||'?')+'), maar er zijn nog geen logregels ontvangen. Geladen uit oude logs: '+(k.prefilled||0)+'.'; li.className='mb-3 text-sm rounded-xl px-3 py-2 bg-yt-hover text-yt-mute'; }
@@ -198,7 +198,7 @@ async function ctl(b,action){
   b.disabled=true; try { const r=await post('api/devices/control',{screen_id:id,action,value}); toast(r.message,r.ok); } finally { b.disabled=false; }
 }
 function fmtLeft(s){ const m=Math.ceil(s/60); return m>=90?Math.round(m/60)+' u':m+' min'; }
-async function pauseDev(b){ const m=prompt('Hoeveel minuten pauzeren voor "'+b.dataset.name+'"? (iSponsorBlockTV wordt kort herstart)','30'); if(!m) return;
+async function pauseDev(b){ const m=prompt('Hoeveel minuten bypass voor "'+b.dataset.name+'"? De tv blijft gekoppeld. iSponsorBlockTV wordt kort herstart.','30'); if(!m) return;
   const r=await post('api/devices/pause',{screen_id:b.dataset.id,minutes:m}); toast(r.message,r.ok); refresh(); }
 async function resumeDev(b){ const r=await post('api/devices/resume',{screen_id:b.dataset.id}); toast(r.message,r.ok); refresh(); }
 async function renameDev(b){ const n=prompt('Nieuwe naam:',b.dataset.name); if(!n) return;
