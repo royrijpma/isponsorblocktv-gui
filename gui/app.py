@@ -484,6 +484,21 @@ def api_dev_info():
         return jsonify({"ok": False, "message": str(e) or type(e).__name__}), 500
 
 
+@app.route("/api/self-restart", methods=["POST"])
+def api_self_restart():
+    ref = os.environ.get("HOSTNAME") or "isponsorblocktv-gui"
+    try:
+        me = client.containers.get(ref)
+    except Exception:
+        try:
+            me = client.containers.get("isponsorblocktv-gui")
+        except Exception as e:
+            return jsonify({"ok": False, "message": f"Eigen container niet gevonden: {e}"}), 500
+    # Met een kleine vertraging, zodat dit antwoord nog aankomt.
+    threading.Timer(1.0, lambda: me.restart(timeout=10)).start()
+    return jsonify({"ok": True, "message": "GUI herstart en haalt de nieuwste code op. Even geduld…"})
+
+
 @app.route("/api/update", methods=["POST"])
 def api_update():
     d = request.get_json(force=True)

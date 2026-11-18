@@ -30,6 +30,7 @@ tailwind.config = { darkMode: 'class', theme: { extend: { fontFamily: { sans: ['
     </div>
     <span class="text-yt-mute text-sm hidden sm:inline">dashboard</span>
     <div class="flex-1"></div>
+    <button onclick="restartGui()" title="Herstart de GUI en haal de nieuwste code op" class="text-sm px-3 py-1 rounded-full bg-yt-hover hover:bg-yt-line">GUI herstarten</button>
     <span id="state" class="px-3 py-1 rounded-full text-sm bg-yt-hover">…</span>
   </div>
 </header>
@@ -168,6 +169,15 @@ async function applyTag(){
 async function removeDev(b){ if(!confirm('Tv "'+b.dataset.name+'" ontkoppelen? De container wordt herstart.')) return;
   const r=await post('api/devices/remove',{screen_id:b.dataset.id}); toast(r.message,r.ok); refresh(); }
 async function getModel(b){ b.textContent='Bezig…'; const r=await post('api/devices/info',{screen_id:b.dataset.id}); toast(r.message,r.ok); refresh(); }
+async function restartGui(){
+  if(!confirm('De GUI herstarten en de nieuwste code ophalen? Dit duurt ongeveer een minuut.')) return;
+  const r=await post('api/self-restart',{}); toast(r.message,r.ok); if(!r.ok) return;
+  document.body.style.opacity='.5'; document.body.style.pointerEvents='none';
+  let tries=0; const t=setInterval(async()=>{ tries++;
+    try { const x=await fetch('api/status',{cache:'no-store'}); if(x.ok && tries>3){ clearInterval(t); location.reload(); } } catch {}
+    if(tries>90){ clearInterval(t); document.body.style.opacity=''; document.body.style.pointerEvents=''; toast('GUI reageert niet. Controleer de container in Portainer.',false); }
+  },2000);
+}
 async function renameDev(b){ const n=prompt('Nieuwe naam:',b.dataset.name); if(!n) return;
   const r=await post('api/devices/rename',{screen_id:b.dataset.id,name:n}); toast(r.message,r.ok); refresh(); }
 async function addDev(){ const code=$('pairCode').value; if(!code) return toast('Vul eerst de tv-code in.',false);
