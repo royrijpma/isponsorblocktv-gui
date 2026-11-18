@@ -1,0 +1,38 @@
+# Plak dit in Portainer: Stacks -> Add stack -> Web editor.
+# Geen build en geen ghcr.io nodig. De GUI-code wordt bij het starten van GitHub gehaald (repo moet publiek zijn).
+version: "3.8"
+
+services:
+  isponsorblocktv:
+    image: ghcr.io/dmunozv04/isponsorblocktv:close-ads-5s
+    container_name: isponsorblocktv
+    network_mode: host
+    restart: unless-stopped
+    environment:
+      - TZ=Europe/Amsterdam
+    volumes:
+      - /Volume1/docker/isponsorblocktv/data:/app/data
+
+  isponsorblocktv-gui:
+    image: python:3.12-slim
+    container_name: isponsorblocktv-gui
+    restart: unless-stopped
+    working_dir: /app
+    ports:
+      - "8095:8095"
+    environment:
+      - TZ=Europe/Amsterdam
+      - TARGET_CONTAINER=isponsorblocktv
+      - IMAGE_REPO=ghcr.io/dmunozv04/isponsorblocktv
+      # - GUI_PASSWORD=kies-een-wachtwoord
+    volumes:
+      - /Volume1/docker/isponsorblocktv/data:/app/data
+      - /var/run/docker.sock:/var/run/docker.sock
+    command:
+      - sh
+      - -c
+      - |
+        pip install --no-cache-dir Flask==3.0.3 docker==7.1.0 gunicorn==22.0.0
+        mkdir -p templates
+        python -c "import urllib.request as u; b='https://raw.githubusercontent.com/royrijpma/isponsorblocktv-gui/main/gui/'; u.urlretrieve(b+'app.py','app.py'); u.urlretrieve(b+'templates/index.html','templates/index.html')"
+        exec gunicorn -w 1 --threads 8 -b 0.0.0.0:8095 app:app
