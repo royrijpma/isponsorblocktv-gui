@@ -66,13 +66,19 @@ def bump(kind):
         atomic_write(STATS_PATH, stats)
 
 
+AD_SKIP = re.compile(r"skipping ad|ad cannot be skipped|scheduling ad dance", re.I)
+MUTE = re.compile(r"(?<![a-z])muting", re.I)
+SEGMENT = re.compile(r"skipping segment", re.I)
+
+
 def classify(line):
-    if " muting" in line:
-        return "muted"
-    if "Skipping ad" in line:
-        return "skipped_ads"
-    if "Skipping segment" in line:
+    msg = line.split(" - ", 3)[-1]
+    if SEGMENT.search(msg):
         return "segments"
+    if AD_SKIP.search(msg):
+        return "skipped_ads"
+    if MUTE.search(msg):
+        return "muted"
     return None
 
 
