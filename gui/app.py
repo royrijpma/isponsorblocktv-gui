@@ -94,22 +94,30 @@ def handle_line(line, count=True):
             bump(kind)
 
 
+collector_state = {"error": None, "streaming": False, "prefilled": 0, "container": None}
+
+
 def collector():
     since = int(time.time())
     prefilled = None
     while True:
         try:
+            collector_state["streaming"] = False
             c = client.containers.get(TARGET)
+            collector_state["container"] = c.status
             if c.status != "running":
+                collector_state["error"] = f"Container '{TARGET}' draait niet (status: {c.status})."
                 time.sleep(3)
                 continue
             if prefilled != c.id:
-                # Eerdere logregels inlezen voor het dashboard, zonder ze mee te tellen.
                 prefilled = c.id
                 old = c.logs(tail=300).decode("utf-8", "replace").splitlines()
                 for l in old:
                     handle_line(l, count=False)
+                collector_state["prefilled"] = len(old)
                 since = int(time.time())
+            collector_state["error"] = None
+            collector_state["streaming"] = True
             buf = b""
             for chunk in c.logs(stream=True, follow=True, since=since, tail=0):
                 since = int(time.time())
@@ -117,8 +125,13 @@ def collector():
                 while b"\n" in buf:
                     raw, buf = buf.split(b"\n", 1)
                     handle_line(raw.decode("utf-8", "replace"))
-            time.sleep(2)  # stream beëindigd (container gestopt/herstart)
-        except (NotFound, APIError, Exception):
+            time.sleep(2)
+        except NotFound:
+            collector_state["error"] = f"Container '{TARGET}' niet gevonden (TARGET_CONTAINER klopt niet?)."
+            time.sleep(5)
+        except Exception as e:
+            collector_state["error"] = f"{type(e).__name__}: {e}"
+            print("collector error:", collector_state["error"], flush=True)
             time.sleep(5)
 
 
@@ -329,6 +342,7 @@ def api_status():
         "config_error": cfg_error,
         "devices": device_status(cfg),
         "logs": list(log_buffer)[-30:],
+        "collector": dict(collector_state, lines=len(log_buffer)),
     })
 
 

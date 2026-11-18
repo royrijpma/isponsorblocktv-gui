@@ -86,6 +86,7 @@ tailwind.config = { darkMode: 'class', theme: { extend: { fontFamily: { sans: ['
 
   <section class="bg-yt-card rounded-2xl p-5">
     <h2 class="text-lg font-medium mb-3">Live logs</h2>
+    <div id="logInfo" class="hidden mb-3 text-sm rounded-xl px-3 py-2 bg-[#3a1212] text-[#ff9a9a]"></div>
     <pre id="logs" class="scroll text-xs bg-black/60 rounded-xl p-3 h-64 overflow-auto whitespace-pre-wrap text-[#cfcfcf]"></pre>
   </section>
 </main>
@@ -142,6 +143,10 @@ async function refresh(){
         </div>
       </div>
     </div>`).join('') : '<div class="text-sm text-yt-mute">Geen apparaten in config.json</div>';
+  const k=r.collector||{}, li=$('logInfo');
+  if(k.error){ li.textContent='Log-lezer: '+k.error; li.classList.remove('hidden'); }
+  else if(!r.logs.length){ li.textContent='Verbonden met de container ('+(k.container||'?')+'), maar er zijn nog geen logregels ontvangen. Geladen uit oude logs: '+(k.prefilled||0)+'.'; li.className='mb-3 text-sm rounded-xl px-3 py-2 bg-yt-hover text-yt-mute'; }
+  else li.classList.add('hidden');
   const lg=$('logs'), stick = lg.scrollTop+lg.clientHeight>=lg.scrollHeight-20;
   lg.textContent=r.logs.join('\n'); if(stick) lg.scrollTop=lg.scrollHeight;
 }
