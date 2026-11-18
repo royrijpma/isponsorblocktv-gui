@@ -83,24 +83,33 @@ def classify(line):
 
 
 # ---------- log collector ----------
-def handle_line(line):
+def handle_line(line, count=True):
     line = ANSI.sub("", line).rstrip()
     if not line:
         return
     log_buffer.append(line)
-    kind = classify(line)
-    if kind:
-        bump(kind)
+    if count:
+        kind = classify(line)
+        if kind:
+            bump(kind)
 
 
 def collector():
     since = int(time.time())
+    prefilled = None
     while True:
         try:
             c = client.containers.get(TARGET)
             if c.status != "running":
                 time.sleep(3)
                 continue
+            if prefilled != c.id:
+                # Eerdere logregels inlezen voor het dashboard, zonder ze mee te tellen.
+                prefilled = c.id
+                old = c.logs(tail=300).decode("utf-8", "replace").splitlines()
+                for l in old:
+                    handle_line(l, count=False)
+                since = int(time.time())
             buf = b""
             for chunk in c.logs(stream=True, follow=True, since=since, tail=0):
                 since = int(time.time())
@@ -179,30 +188,46 @@ def container_info():
 
 
 def device_status(cfg):
-    """Koppel logregels aan tv's. De logger heet iSponsorBlockTV-<sha256 van screen_id>."""
+    """Koppel logregels aan tv's. De logger heet iSponsorBlockTV-<id>."""
     import hashlib
-    out = []
     lines = list(log_buffer)
-    for d in cfg.get("devices", []):
+    devices = cfg.get("devices", [])
+    logger_re = re.compile(r"iSponsorBlockTV-([0-9A-Za-z_-]+)")
+    seen = []
+    for l in lines:
+        m = logger_re.search(l)
+        if m and m.group(1) not in seen:
+            seen.append(m.group(1))
+
+    assigned = {}
+    for i, d in enumerate(devices):
+        sid = d.get("screen_id") or ""
+        cands = {sid, hashlib.sha256(sid.encode()).hexdigest()} if sid else set()
+        for lid in seen:
+            if lid in cands:
+                assigned[i] = lid
+    free_ids = [x for x in seen if x not in assigned.values()]
+    free_devs = [i for i in range(len(devices)) if i not in assigned]
+    if len(free_ids) == 1 and len(free_devs) == 1:
+        assigned[free_devs[0]] = free_ids[0]
+
+    out = []
+    for i, d in enumerate(devices):
         name = d.get("name") or d.get("screen_id", "?")
-        keys = []
-        sid = d.get("screen_id")
-        if sid:
-            keys.append("iSponsorBlockTV-" + hashlib.sha256(sid.encode()).hexdigest())
-        mine = [l for l in lines if any(k in l for k in keys)]
-        if not mine and name != "YouTube on TV":
-            mine = [l for l in lines if name in l]
+        lid = assigned.get(i)
+        mine = [l for l in lines if lid and ("iSponsorBlockTV-" + lid) in l]
         last = mine[-1] if mine else ""
         low = last.lower()
         connected = bool(last) and not any(w in low for w in ("disconnect", "lost", "error", "failed"))
         video = None
         for l in reversed(mine):
-            m = re.search(r"Playing video\s+([\w-]{11})\b", l)
+            m = re.search(r"(?:Playing video|Getting segments for next video:)\s+([\w-]{11})\b", l)
             if m:
                 video = m.group(1)
                 break
         shown = last.split(" - ", 3)[-1] if last else ""
-        out.append({"screen_id": d.get("screen_id"), "name": name, "connected": connected, "video": video, "last": shown[-160:]})
+        out.append({"screen_id": d.get("screen_id"), "name": name, "connected": connected,
+                    "video": video, "last": shown[-160:]})
     return out
 
 
