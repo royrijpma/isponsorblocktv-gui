@@ -27,7 +27,7 @@ client = docker.from_env()
 file_lock = threading.Lock()
 log_buffer = deque(maxlen=500)
 ANSI = re.compile(r"\x1b\[[0-9;]*m")
-LONG_TOKEN = re.compile(r"[A-Za-z0-9_-]{45,}")  # o.a. lounge tokens: nooit tonen
+LONG_TOKEN = re.compile(r"(?<!iSponsorBlockTV-)[A-Za-z0-9_-]{45,}")  # o.a. lounge tokens: nooit tonen
 
 
 # ---------- helpers ----------
