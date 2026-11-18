@@ -1,0 +1,31 @@
+# Variant die de GUI zelf bouwt (geen ghcr.io nodig). Gebruik in Portainer: Stack from Git repository.
+# Pas het volume-pad aan als je data ergens anders staat.
+version: "3.8"
+
+services:
+  isponsorblocktv:
+    image: ghcr.io/dmunozv04/isponsorblocktv:close-ads-5s
+    container_name: isponsorblocktv
+    network_mode: host
+    restart: unless-stopped
+    environment:
+      - TZ=Europe/Amsterdam
+    volumes:
+      - /Volume1/docker/isponsorblocktv/data:/app/data
+
+  isponsorblocktv-gui:
+    build: ./gui
+    image: isponsorblocktv-gui:local
+    container_name: isponsorblocktv-gui
+    restart: unless-stopped
+    ports:
+      - "8095:8095"
+    environment:
+      - TZ=Europe/Amsterdam
+      - TARGET_CONTAINER=isponsorblocktv
+      - IMAGE_REPO=ghcr.io/dmunozv04/isponsorblocktv
+      # Optioneel: wachtwoord voor de GUI (gebruikersnaam: admin)
+      # - GUI_PASSWORD=kies-een-wachtwoord
+    volumes:
+      - /Volume1/docker/isponsorblocktv/data:/app/data
+      - /var/run/docker.sock:/var/run/docker.sock
