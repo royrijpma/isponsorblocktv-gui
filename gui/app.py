@@ -223,6 +223,30 @@ def container_info():
             "image_id": c.attrs["Image"][7:19], "uptime": uptime}
 
 
+video_cache = {}
+
+
+def video_info(vid):
+    """Titel en kanaal via YouTube oEmbed (geen API-sleutel). Haalt op de achtergrond op."""
+    if vid in video_cache:
+        return video_cache[vid]
+    video_cache[vid] = None
+
+    def fetch():
+        import urllib.request
+        try:
+            url = f"https://www.youtube.com/oembed?format=json&url=https://www.youtube.com/watch?v={vid}"
+            with urllib.request.urlopen(url, timeout=6) as r:
+                j = json.load(r)
+            video_cache[vid] = {"title": j.get("title"), "channel": j.get("author_name")}
+        except Exception:
+            video_cache[vid] = {"title": None, "channel": None}
+        if len(video_cache) > 200:
+            video_cache.pop(next(iter(video_cache)))
+    threading.Thread(target=fetch, daemon=True).start()
+    return None
+
+
 def device_status(cfg):
     """Koppel logregels aan tv's. De logger heet iSponsorBlockTV-<id>."""
     import hashlib
@@ -271,7 +295,8 @@ def device_status(cfg):
                 pass
         out.append({"screen_id": d.get("screen_id"), "name": name, "connected": connected,
                     "online": avail.get(d.get("screen_id")), "ago": ago,
-                    "video": video, "last": shown[-160:]})
+                    "video": video, "info": video_info(video) if video else None,
+                    "last": shown[-160:]})
     return out
 
 
