@@ -175,6 +175,67 @@ async def _pair(code):
         return api.auth.screen_id, name
 
 
+# ---------- tijdelijk pauzeren van iSponsorBlockTV voor een tv ----------
+PAUSE_PATH = os.path.join(DATA_DIR, "paused_devices.json")
+
+
+def load_pause():
+    try:
+        with open(PAUSE_PATH, encoding="utf-8") as f:
+            return json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):
+        return {}
+
+
+def pause_device(sid, minutes):
+    with file_lock:
+        cfg = read_config()
+        dev = next((x for x in cfg.get("devices", []) if x.get("screen_id") == sid), None)
+        if not dev:
+            raise ValueError("Tv niet gevonden in config.")
+        pause = load_pause()
+        pause[sid] = {"device": dev, "until": int(time.time() + minutes * 60)}
+        atomic_write(PAUSE_PATH, pause)  # eerst opslaan, zodat de tv nooit kwijtraakt
+        with open(CONFIG_PATH + ".bak", "w", encoding="utf-8") as f:
+            json.dump(cfg, f, indent=4, ensure_ascii=False)
+        cfg["devices"] = [x for x in cfg.get("devices", []) if x.get("screen_id") != sid]
+        atomic_write(CONFIG_PATH, cfg)
+    client.containers.get(TARGET).restart(timeout=15)
+
+
+def resume_device(sid):
+    with file_lock:
+        pause = load_pause()
+        entry = pause.get(sid)
+        if not entry:
+            return False
+        cfg = read_config()
+        devs = cfg.get("devices", [])
+        if not any(x.get("screen_id") == sid for x in devs):
+            devs.append(entry["device"])
+            cfg["devices"] = devs
+            atomic_write(CONFIG_PATH, cfg)
+        del pause[sid]
+        atomic_write(PAUSE_PATH, pause)
+    client.containers.get(TARGET).restart(timeout=15)
+    return True
+
+
+def resume_loop():
+    while True:
+        try:
+            now = time.time()
+            for sid, e in list(load_pause().items()):
+                if e.get("until", 0) <= now:
+                    resume_device(sid)
+        except Exception as ex:
+            print("resume error:", ex, flush=True)
+        time.sleep(15)
+
+
+threading.Thread(target=resume_loop, daemon=True, name="resume").start()
+
+
 # ---------- model per tv (eenmalig, korte verbinding) ----------
 INFO_PATH = os.path.join(DATA_DIR, "device_info.json")
 
@@ -440,6 +501,8 @@ def api_status():
         "devices": device_status(cfg),
         "logs": list(log_buffer)[-30:],
         "collector": dict(collector_state, lines=len(log_buffer)),
+        "paused": [{"screen_id": k, "name": v["device"].get("name"), "left": max(0, int(v["until"] - time.time()))}
+                   for k, v in load_pause().items()],
     })
 
 
@@ -536,6 +599,28 @@ def api_dev_control():
             return jsonify({"ok": False, "message": "Tv niet gevonden in config."}), 404
         asyncio.run(_control(dev["screen_id"], dev.get("name"), action, d.get("value")))
         return jsonify({"ok": True, "message": "Verstuurd."})
+    except Exception as e:
+        return jsonify({"ok": False, "message": str(e) or type(e).__name__}), 500
+
+
+@app.route("/api/devices/pause", methods=["POST"])
+def api_dev_pause():
+    d = request.get_json(force=True)
+    try:
+        minutes = int(d.get("minutes"))
+        if not 1 <= minutes <= 1440:
+            raise ValueError("Kies 1 tot 1440 minuten.")
+        pause_device(d.get("screen_id"), minutes)
+        return jsonify({"ok": True, "message": f"Blokkering gepauzeerd voor {minutes} min."})
+    except Exception as e:
+        return jsonify({"ok": False, "message": str(e) or type(e).__name__}), 500
+
+
+@app.route("/api/devices/resume", methods=["POST"])
+def api_dev_resume():
+    try:
+        ok = resume_device(request.get_json(force=True).get("screen_id"))
+        return jsonify({"ok": ok, "message": "Hervat." if ok else "Deze tv was niet gepauzeerd."})
     except Exception as e:
         return jsonify({"ok": False, "message": str(e) or type(e).__name__}), 500
 
