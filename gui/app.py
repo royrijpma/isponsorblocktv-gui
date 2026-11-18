@@ -27,6 +27,7 @@ client = docker.from_env()
 file_lock = threading.Lock()
 log_buffer = deque(maxlen=500)
 ANSI = re.compile(r"\x1b\[[0-9;]*m")
+LONG_TOKEN = re.compile(r"[A-Za-z0-9_-]{45,}")  # o.a. lounge tokens: nooit tonen
 
 
 # ---------- helpers ----------
@@ -93,6 +94,7 @@ def handle_line(line, count=True):
     line = ANSI.sub("", line).rstrip()
     if not line:
         return
+    line = LONG_TOKEN.sub(lambda m: m.group(0)[:6] + "…", line)
     log_buffer.append(line)
     if count:
         kind = classify(line)
@@ -414,7 +416,8 @@ def device_status(cfg):
         name = d.get("name") or d.get("screen_id", "?")
         lid = assigned.get(i)
         mine = [l for l in lines if lid and ("iSponsorBlockTV-" + lid) in l]
-        last = mine[-1] if mine else ""
+        useful = [l for l in mine if re.search(r"Playing video|Skipping|[Aa]d |muting|Getting segments|Replaying", l)]
+        last = useful[-1] if useful else (mine[-1] if mine else "")
         low = last.lower()
         connected = bool(last) and not any(w in low for w in ("disconnect", "lost", "error", "failed"))
         video = None

@@ -20,7 +20,7 @@ tailwind.config = { darkMode: 'class', theme: { extend: { fontFamily: { sans: ['
   .scroll::-webkit-scrollbar { width: 10px } .scroll::-webkit-scrollbar-thumb { background: #3f3f3f; border-radius: 9999px }
 </style>
 </head>
-<body class="bg-yt-bg text-[#f1f1f1] min-h-screen">
+<body class="bg-yt-bg text-[#f1f1f1] min-h-screen overflow-x-hidden">
 
 <header class="sticky top-0 z-10 bg-yt-bg/95 backdrop-blur border-b border-yt-line/60">
   <div class="max-w-6xl mx-auto px-4 h-14 flex items-center gap-3">
@@ -30,12 +30,12 @@ tailwind.config = { darkMode: 'class', theme: { extend: { fontFamily: { sans: ['
     </div>
     <span class="text-yt-mute text-sm hidden sm:inline">dashboard</span>
     <div class="flex-1"></div>
-    <button onclick="restartGui()" title="Herstart de GUI en haal de nieuwste code op" class="text-sm px-3 py-1 rounded-full bg-yt-hover hover:bg-yt-line">GUI herstarten</button>
+    <button onclick="restartGui()" title="Herstart de GUI en haal de nieuwste code op" class="text-sm px-3 py-1 rounded-full bg-yt-hover hover:bg-yt-line whitespace-nowrap">GUI herstarten</button>
     <span id="state" class="px-3 py-1 rounded-full text-sm bg-yt-hover">…</span>
   </div>
 </header>
 
-<main class="max-w-6xl mx-auto p-4 space-y-4">
+<main class="max-w-6xl mx-auto p-3 sm:p-4 space-y-4 overflow-x-hidden">
   <div id="toast" class="hidden px-4 py-3 rounded-xl text-sm"></div>
 
   <section class="grid grid-cols-2 md:grid-cols-4 gap-3" id="tiles"></section>
@@ -78,9 +78,9 @@ tailwind.config = { darkMode: 'class', theme: { extend: { fontFamily: { sans: ['
   <section class="bg-yt-card rounded-2xl p-5">
     <h2 class="text-lg font-medium mb-4">Tv's</h2>
     <div id="paused" class="space-y-2 mb-4"></div>
-    <div id="devices" class="grid md:grid-cols-2 gap-4"></div>
+    <div id="devices" class="grid xl:grid-cols-2 gap-4"></div>
     <div class="mt-5 pt-4 border-t border-yt-line/60 flex flex-wrap gap-2">
-      <input id="pairCode" placeholder="Tv-code (YouTube → Instellingen → Koppelen met tv-code)" class="flex-1 min-w-[16rem] bg-yt-hover rounded-full px-4 py-2 text-sm outline-none focus:ring-1 focus:ring-yt-blue">
+      <input id="pairCode" placeholder="Tv-code (YouTube → Instellingen → Koppelen met tv-code)" class="w-full sm:flex-1 min-w-0 bg-yt-hover rounded-full px-4 py-2 text-sm outline-none focus:ring-1 focus:ring-yt-blue">
       <input id="pairName" placeholder="Naam (optioneel)" class="bg-yt-hover rounded-full px-4 py-2 text-sm outline-none focus:ring-1 focus:ring-yt-blue">
       <button onclick="addDev()" class="bg-[#f1f1f1] hover:bg-white text-black rounded-full px-5 py-2 text-sm font-medium transition">Tv koppelen</button>
     </div>
@@ -129,20 +129,20 @@ async function refresh(){
     formLoaded=true;
   }
   $('devices').innerHTML = r.devices.length ? r.devices.map(d=>`
-    <div class="flex gap-3 bg-yt-hover/50 rounded-xl p-3">
-      <div class="relative w-40 shrink-0 aspect-video rounded-lg overflow-hidden bg-black">
+    <div class="flex flex-col sm:flex-row gap-3 bg-yt-hover/50 rounded-xl p-3 min-w-0">
+      <div class="relative w-full sm:w-40 shrink-0 aspect-video rounded-lg overflow-hidden bg-black">
         ${d.video?`<img src="https://i.ytimg.com/vi/${esc(d.video)}/mqdefault.jpg" class="w-full h-full object-cover" onerror="this.style.display='none'">`
                  :`<div class="w-full h-full flex items-center justify-center text-yt-mute text-xs">niets aan het afspelen</div>`}
         ${d.video?`<span class="absolute bottom-1 right-1 bg-black/80 text-[10px] px-1.5 py-0.5 rounded">AFSPELEN</span>`:''}
         <div class="absolute bottom-0 left-0 h-1 ${d.ago!=null&&d.ago<300?'bg-yt-red w-full':'bg-yt-line w-0'}"></div>
       </div>
-      <div class="min-w-0 flex-1">
-        <div class="flex items-center gap-2"><span class="h-2.5 w-2.5 rounded-full shrink-0 ${d.online===true?'bg-emerald-400':(d.online===false?'bg-yt-line':'bg-amber-400')}"></span><b class="truncate">${esc(d.name)}</b>
+      <div class="min-w-0 flex-1 break-words">
+        <div class="flex flex-wrap items-center gap-x-2"><span class="h-2.5 w-2.5 rounded-full shrink-0 ${d.online===true?'bg-emerald-400':(d.online===false?'bg-yt-line':'bg-amber-400')}"></span><b class="truncate">${esc(d.name)}</b>
           <span class="text-xs ${d.online===true?'text-emerald-400':'text-yt-mute'}">${d.online===true?'Online':(d.online===false?'Offline':'status onbekend')}</span></div>
         ${d.info&&d.info.title?`<div class="text-sm font-medium mt-1 line-clamp-2">${esc(d.info.title)}</div><div class="text-xs text-yt-mute">${esc(d.info.channel||'')}</div>`:''}
         <div class="text-xs text-yt-mute mt-1 truncate">${d.video?esc(d.video):'—'}${d.ago!=null?' · laatste activiteit '+fmtAgo(d.ago):''}</div>
         <div class="text-xs text-yt-mute mt-1">${d.model?'Model: '+esc(d.model):`<button data-id="${esc(d.screen_id||'')}" onclick="getModel(this)" class="underline hover:text-white">Model ophalen</button>`}</div>
-        <div class="text-xs text-[#717171] mt-1 line-clamp-2">${esc(d.last||'nog geen logregels')}</div>
+        <div class="text-xs text-[#717171] mt-1 line-clamp-2 break-all">${esc(d.last||'nog geen logregels')}</div>
         <div class="mt-2 flex flex-wrap items-center gap-1.5" data-id="${esc(d.screen_id||'')}">
           <button onclick="ctl(this,'previous')" title="Vorige" class="w-8 h-8 rounded-full bg-yt-line hover:bg-[#4a4a4a] text-sm">⏮</button>
           <button onclick="ctl(this,'play')" title="Afspelen" class="w-8 h-8 rounded-full bg-yt-line hover:bg-[#4a4a4a] text-sm">▶</button>
