@@ -145,21 +145,30 @@ def container_info():
 
 
 def device_status(cfg):
+    """Koppel logregels aan tv's. De logger heet iSponsorBlockTV-<sha256 van screen_id>."""
+    import hashlib
     out = []
     lines = list(log_buffer)
     for d in cfg.get("devices", []):
         name = d.get("name") or d.get("screen_id", "?")
-        mine = [l for l in lines if name in l]
+        keys = []
+        sid = d.get("screen_id")
+        if sid:
+            keys.append("iSponsorBlockTV-" + hashlib.sha256(sid.encode()).hexdigest())
+        mine = [l for l in lines if any(k in l for k in keys)]
+        if not mine and name != "YouTube on TV":
+            mine = [l for l in lines if name in l]
         last = mine[-1] if mine else ""
         low = last.lower()
         connected = bool(last) and not any(w in low for w in ("disconnect", "lost", "error", "failed"))
         video = None
         for l in reversed(mine):
-            m = re.search(r"(?:video[_ ]?id|v=|watching|playing)\W+([\w-]{11})\b", l, re.I)
+            m = re.search(r"Playing video\s+([\w-]{11})\b", l)
             if m:
                 video = m.group(1)
                 break
-        out.append({"name": name, "connected": connected, "video": video, "last": last[-160:]})
+        shown = last.split(" - ", 3)[-1] if last else ""
+        out.append({"name": name, "connected": connected, "video": video, "last": shown[-160:]})
     return out
 
 

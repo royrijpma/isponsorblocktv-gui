@@ -74,6 +74,7 @@ async function refresh(){
   const c=r.container;
   $('state').textContent = c.exists ? c.status : 'container niet gevonden';
   $('state').className = 'px-3 py-1 rounded-full text-sm '+(c.status==='running'?'bg-emerald-900 text-emerald-200':'bg-red-900 text-red-200');
+  if(!window.tagInit && c.tag){ window.tagInit=true; const o=[...$('tagSel').options].find(x=>x.value===c.tag); if(o) $('tagSel').value=c.tag; else $('tagCustom').value=c.tag; }
   $('curTag').textContent=c.tag||'-'; $('curImg').textContent=c.image_id||'-';
   const s=r.stats;
   $('tiles').innerHTML =
