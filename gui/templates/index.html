@@ -151,10 +151,10 @@ async function refresh(){
           <button onclick="ctl(this,'pause')" title="Pauze" class="w-8 h-8 rounded-full bg-yt-line hover:bg-[#4a4a4a] text-sm">⏸</button>
           <button onclick="ctl(this,'next')" title="Volgende" class="w-8 h-8 rounded-full bg-yt-line hover:bg-[#4a4a4a] text-sm">⏭</button>
           <label class="flex items-center gap-2 h-8 px-3 rounded-full bg-yt-line text-xs" title="Volume">🔊
-            <input type="range" min="0" max="100" value="${(window._vol||{})[d.screen_id]??30}" data-id="${esc(d.screen_id||'')}"
+            <input type="range" min="0" max="10" step="1" value="${(window._vol||{})[d.screen_id]??3}" data-id="${esc(d.screen_id||'')}"
               oninput="this.nextElementSibling.textContent=this.value" onchange="volSet(this)"
               onpointerdown="window._busy=true" onpointerup="window._busy=false" onpointercancel="window._busy=false"
-              class="w-24 accent-[#3ea6ff]"><span class="w-6 text-right">${(window._vol||{})[d.screen_id]??30}</span></label>
+              class="w-24 accent-[#3ea6ff]"><span class="w-5 text-right">${(window._vol||{})[d.screen_id]??3}</span></label>
           <button onclick="ctl(this,'play_video')" title="Start een link" class="px-3 h-8 rounded-full bg-yt-line hover:bg-[#4a4a4a] text-xs">Start link</button>
         </div>
         <div class="mt-2 flex gap-2">
@@ -204,8 +204,8 @@ async function restartGui(){
 }
 async function volSet(el){
   window._vol=window._vol||{}; window._vol[el.dataset.id]=el.value; window._devHtml=null;
-  try { const r=await post('api/devices/control',{screen_id:el.dataset.id,action:'volume',value:el.value});
-    toast(r.ok?('Volume '+el.value):r.message,r.ok); if(!r.ok) alert(r.message); }
+  try { const r=await post('api/devices/control',{screen_id:el.dataset.id,action:'volume',value:Number(el.value)*10});
+    toast(r.ok?('Volume '+el.value+' van 10'):r.message,r.ok); if(!r.ok) alert(r.message); }
   catch(e){ alert('Geen verbinding met de GUI: '+e); }
   finally { window._busy=false; }
 }
