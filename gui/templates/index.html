@@ -13,101 +13,92 @@ tailwind.config = { darkMode: 'class', theme: { extend: { fontFamily: { sans: ['
 </script>
 <style>
   body { font-family: Roboto, system-ui, sans-serif; }
-  .switch { width: 36px; height: 14px; border-radius: 9999px; background: #717171; position: relative; transition: .15s; flex: none; }
-  .switch::after { content: ""; position: absolute; top: -3px; left: 0; width: 20px; height: 20px; border-radius: 50%; background: #f1f1f1; transition: .15s; box-shadow: 0 1px 3px rgba(0,0,0,.5); }
+  .switch { width: 32px; height: 12px; border-radius: 9999px; background: #717171; position: relative; transition: .15s; flex: none; }
+  .switch::after { content: ""; position: absolute; top: -3px; left: 0; width: 18px; height: 18px; border-radius: 50%; background: #f1f1f1; transition: .15s; box-shadow: 0 1px 3px rgba(0,0,0,.5); }
   input:checked + .switch { background: #3ea6ff66; }
-  input:checked + .switch::after { background: #3ea6ff; left: 16px; }
-  summary { list-style: none; } summary::-webkit-details-marker { display: none; }
-  details[open] > summary .chev { transform: rotate(180deg); } .chev { display:inline-block; transition: .15s; }
+  input:checked + .switch::after { background: #3ea6ff; left: 14px; }
   .scroll::-webkit-scrollbar { width: 10px } .scroll::-webkit-scrollbar-thumb { background: #3f3f3f; border-radius: 9999px }
 </style>
 </head>
 <body class="bg-yt-bg text-[#f1f1f1] min-h-screen overflow-x-hidden">
 
 <header class="sticky top-0 z-10 bg-yt-bg/95 backdrop-blur border-b border-yt-line/60">
-  <div class="max-w-6xl mx-auto px-3 sm:px-4 h-14 flex items-center gap-2 sm:gap-3">
+  <div class="max-w-6xl mx-auto px-2.5 sm:px-4 h-11 sm:h-14 flex items-center gap-2 sm:gap-3">
     <div class="flex items-center gap-1.5">
-      <svg width="30" height="21" viewBox="0 0 30 21"><rect width="30" height="21" rx="6" fill="#ff0000"/><path d="M12 6l8 4.5-8 4.5z" fill="#fff"/></svg>
-      <span class="text-base sm:text-lg font-bold tracking-tight">iSponsorBlockTV</span>
+      <svg width="26" height="18" viewBox="0 0 30 21"><rect width="30" height="21" rx="6" fill="#ff0000"/><path d="M12 6l8 4.5-8 4.5z" fill="#fff"/></svg>
+      <span class="text-sm sm:text-lg font-bold tracking-tight">iSponsorBlockTV</span>
     </div>
     <span class="text-yt-mute text-sm hidden sm:inline">dashboard</span>
     <div class="flex-1"></div>
-    <button onclick="restartGui()" title="Herstart de GUI en haal de nieuwste code op" class="text-sm px-3 py-1 rounded-full bg-yt-hover hover:bg-yt-line whitespace-nowrap">GUI herstarten</button>
-    <span id="state" class="px-3 py-1 rounded-full text-sm bg-yt-hover">…</span>
+    <button onclick="restartGui()" title="Herstart de GUI en haal de nieuwste code op" class="text-xs sm:text-sm px-2.5 sm:px-3 py-1 rounded-full bg-yt-hover hover:bg-yt-line whitespace-nowrap">GUI herstarten</button>
+    <span id="state" class="px-2.5 sm:px-3 py-1 rounded-full text-xs sm:text-sm bg-yt-hover">…</span>
   </div>
 </header>
 
-<main class="max-w-6xl mx-auto p-2.5 sm:p-4 space-y-3 sm:space-y-4 overflow-x-hidden">
-  
+<main class="max-w-6xl mx-auto p-2 sm:p-4 space-y-2 sm:space-y-4 overflow-x-hidden">
 
-  <section class="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-3" id="tiles"></section>
+  <section class="grid grid-cols-4 gap-1.5 sm:gap-3" id="tiles"></section>
 
-  <div class="grid lg:grid-cols-2 gap-3 sm:gap-4">
-    <section class="bg-yt-card rounded-2xl"><details class="fold p-4 sm:p-5">
-      <summary class="text-lg font-medium cursor-pointer flex items-center justify-between">Instellingen <span class="chev text-yt-mute text-sm">▾</span></summary>
-      <div class="space-y-4 mt-4">
-      <label class="flex items-center justify-between gap-4 cursor-pointer">
-        <span>Advertenties dempen <span class="text-yt-mute text-sm">mute_ads</span></span>
-        <span><input type="checkbox" id="mute_ads" class="sr-only peer"><span class="switch block"></span></span>
-      </label>
-      <label class="flex items-center justify-between gap-4 cursor-pointer">
-        <span>Advertenties overslaan <span class="text-yt-mute text-sm">skip_ads</span></span>
-        <span><input type="checkbox" id="skip_ads" class="sr-only peer"><span class="switch block"></span></span>
-      </label>
-      <div class="pt-2 text-sm text-yt-mute">SponsorBlock-categorieën</div>
-      <div class="flex flex-wrap gap-2">
+  <div class="grid lg:grid-cols-2 gap-2 sm:gap-4">
+    <section class="bg-yt-card rounded-2xl p-3 sm:p-5">
+      <h2 class="text-sm sm:text-lg font-medium mb-2 sm:mb-4">Instellingen</h2>
+      <div class="grid grid-cols-2 gap-2 mb-2 sm:mb-4">
+        <label class="flex items-center justify-between gap-2 cursor-pointer bg-yt-hover rounded-xl px-3 py-2 text-sm">
+          <span>Dempen<span class="hidden sm:inline text-yt-mute text-xs"> mute_ads</span></span>
+          <span><input type="checkbox" id="mute_ads" class="sr-only peer"><span class="switch block"></span></span>
+        </label>
+        <label class="flex items-center justify-between gap-2 cursor-pointer bg-yt-hover rounded-xl px-3 py-2 text-sm">
+          <span>Overslaan<span class="hidden sm:inline text-yt-mute text-xs"> skip_ads</span></span>
+          <span><input type="checkbox" id="skip_ads" class="sr-only peer"><span class="switch block"></span></span>
+        </label>
+      </div>
+      <div class="flex flex-wrap gap-1.5 sm:gap-2 mb-2 sm:mb-4">
         {% for c in categories %}
         <label class="cursor-pointer select-none">
           <input type="checkbox" class="cat peer sr-only" value="{{c}}">
-          <span class="block px-3 py-1.5 rounded-lg text-sm bg-yt-hover hover:bg-yt-line peer-checked:bg-[#f1f1f1] peer-checked:text-black transition">{{c}}</span>
+          <span class="block px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg text-xs sm:text-sm bg-yt-hover hover:bg-yt-line peer-checked:bg-[#f1f1f1] peer-checked:text-black transition">{{c}}</span>
         </label>
         {% endfor %}
       </div>
-      <button onclick="saveConfig()" class="w-full bg-[#f1f1f1] hover:bg-white text-black rounded-full py-2.5 font-medium transition">Opslaan &amp; herstarten</button>
-      </div></details>
+      <button onclick="saveConfig()" class="w-full bg-[#f1f1f1] hover:bg-white text-black rounded-full py-2 text-sm sm:text-base font-medium transition">Opslaan &amp; herstarten</button>
     </section>
 
-    <section class="bg-yt-card rounded-2xl"><details class="fold p-4 sm:p-5">
-      <summary class="text-lg font-medium cursor-pointer flex items-center justify-between">Versie &amp; updates <span class="chev text-yt-mute text-sm">▾</span></summary>
-      <div class="space-y-3 mt-3">
-      <div class="text-sm text-yt-mute">Huidige tag <b id="curTag" class="text-[#f1f1f1]">-</b> · image <span id="curImg">-</span></div>
-      <select id="tagSel" class="w-full bg-yt-hover rounded-xl p-2.5 outline-none" onchange="document.getElementById('tagCustom').value=''">
-        {% for t in presets %}<option value="{{t}}">{{t}}</option>{% endfor %}
-      </select>
-      <input id="tagCustom" placeholder="Of eigen tag, bijv. develop" class="w-full bg-yt-hover rounded-xl p-2.5 text-sm outline-none focus:ring-1 focus:ring-yt-blue">
-      <button onclick="applyTag()" id="updBtn" class="w-full bg-yt-blue hover:brightness-110 text-black rounded-full py-2.5 font-medium transition">Toepassen / Check &amp; Update</button>
-      <p class="text-xs text-yt-mute">Pullt de image van GHCR en maakt de container opnieuw aan met dezelfde instellingen. Je tv-koppelingen blijven behouden.</p>
-      </div></details>
+    <section class="bg-yt-card rounded-2xl p-3 sm:p-5">
+      <h2 class="text-sm sm:text-lg font-medium mb-1 sm:mb-3">Versie &amp; updates</h2>
+      <div class="text-xs sm:text-sm text-yt-mute mb-2">Tag <b id="curTag" class="text-[#f1f1f1]">-</b> · image <span id="curImg">-</span></div>
+      <div class="grid grid-cols-2 gap-2 mb-2">
+        <select id="tagSel" class="min-w-0 bg-yt-hover rounded-xl px-2.5 py-2 text-sm outline-none" onchange="document.getElementById('tagCustom').value=''">
+          {% for t in presets %}<option value="{{t}}">{{t}}</option>{% endfor %}
+        </select>
+        <input id="tagCustom" placeholder="Eigen tag" class="min-w-0 bg-yt-hover rounded-xl px-2.5 py-2 text-sm outline-none focus:ring-1 focus:ring-yt-blue">
+      </div>
+      <button onclick="applyTag()" id="updBtn" class="w-full bg-yt-blue hover:brightness-110 text-black rounded-full py-2 text-sm sm:text-base font-medium transition">Toepassen / Check &amp; Update</button>
+      <p class="hidden sm:block text-xs text-yt-mute mt-3">Pullt de image van GHCR en maakt de container opnieuw aan met dezelfde instellingen. Je tv-koppelingen blijven behouden.</p>
     </section>
   </div>
 
-  <section class="bg-yt-card rounded-2xl p-3 sm:p-5">
-    <h2 class="text-lg font-medium mb-3 sm:mb-4">Tv's</h2>
-    <div id="paused" class="space-y-2 mb-4"></div>
-    <div id="devices" class="grid xl:grid-cols-2 gap-3 sm:gap-4"></div>
-    <details class="fold mt-4 pt-3 border-t border-yt-line/60"><summary class="text-sm text-yt-mute cursor-pointer">+ Tv koppelen</summary>
-    <div class="mt-3 flex flex-wrap gap-2">
-      <input id="pairCode" placeholder="Tv-code (YouTube → Instellingen → Koppelen met tv-code)" class="w-full sm:flex-1 min-w-0 bg-yt-hover rounded-full px-4 py-2 text-sm outline-none focus:ring-1 focus:ring-yt-blue">
-      <input id="pairName" placeholder="Naam (optioneel)" class="bg-yt-hover rounded-full px-4 py-2 text-sm outline-none focus:ring-1 focus:ring-yt-blue">
-      <button onclick="addDev()" class="bg-[#f1f1f1] hover:bg-white text-black rounded-full px-5 py-2 text-sm font-medium transition">Tv koppelen</button>
-    </div></details>
+  <section class="bg-yt-card rounded-2xl p-2.5 sm:p-5">
+    <h2 class="text-sm sm:text-lg font-medium mb-2 sm:mb-4">Tv's</h2>
+    <div id="paused" class="space-y-2 mb-2"></div>
+    <div id="devices" class="grid xl:grid-cols-2 gap-2 sm:gap-4"></div>
+    <div class="mt-2 sm:mt-4 pt-2 sm:pt-3 border-t border-yt-line/60 flex flex-wrap gap-1.5 sm:gap-2">
+      <input id="pairCode" placeholder="Tv-code (YouTube → Instellingen → Koppelen met tv-code)" class="w-full sm:flex-1 min-w-0 bg-yt-hover rounded-full px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm outline-none focus:ring-1 focus:ring-yt-blue">
+      <input id="pairName" placeholder="Naam (optioneel)" class="flex-1 sm:flex-none min-w-0 bg-yt-hover rounded-full px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm outline-none focus:ring-1 focus:ring-yt-blue">
+      <button onclick="addDev()" class="bg-[#f1f1f1] hover:bg-white text-black rounded-full px-4 sm:px-5 py-1.5 sm:py-2 text-xs sm:text-sm font-medium transition whitespace-nowrap">Tv koppelen</button>
+    </div>
   </section>
 
-  <section class="bg-yt-card rounded-2xl"><details class="fold p-4 sm:p-5">
-    <summary class="text-lg font-medium cursor-pointer flex items-center justify-between">Live logs <span class="chev text-yt-mute text-sm">▾</span></summary>
-    <div class="mt-3">
-    <div id="logInfo" class="hidden mb-3 text-sm rounded-xl px-3 py-2 bg-[#3a1212] text-[#ff9a9a]"></div>
-    <pre id="logs" class="scroll text-xs bg-black/60 rounded-xl p-3 h-48 sm:h-64 overflow-auto whitespace-pre-wrap text-[#cfcfcf]"></pre>
-    </div></details>
+  <section class="bg-yt-card rounded-2xl p-3 sm:p-5">
+    <h2 class="text-sm sm:text-lg font-medium mb-2 sm:mb-3">Live logs</h2>
+    <div id="logInfo" class="hidden mb-2 text-xs sm:text-sm rounded-xl px-3 py-2 bg-[#3a1212] text-[#ff9a9a]"></div>
+    <pre id="logs" class="scroll text-[10px] sm:text-xs bg-black/60 rounded-xl p-2 sm:p-3 h-28 sm:h-64 overflow-auto whitespace-pre-wrap break-all text-[#cfcfcf]"></pre>
   </section>
-  <footer class="text-center text-xs text-[#717171] pb-10 pt-1">Versie <span id="ver">?</span></footer>
+  <footer class="text-center text-[11px] text-[#717171] pb-6 pt-0">Versie <span id="ver">?</span></footer>
 </main>
 <div id="toast" class="hidden fixed bottom-4 left-4 right-4 sm:left-auto sm:max-w-md z-50 px-4 py-3 rounded-xl text-sm shadow-lg"></div>
 
 <script>
 const $ = id => document.getElementById(id);
-const isDesk = matchMedia('(min-width:640px)').matches;
-document.querySelectorAll('details.fold').forEach(d=>{ if(isDesk) d.open=true; });
 let formDirty = false, formLoaded = false;
 document.addEventListener('change', e => { if (e.target.closest('section')) formDirty = true; });
 
@@ -116,84 +107,90 @@ function toast(msg, ok=true){
   t.className='fixed bottom-4 left-4 right-4 sm:left-auto sm:max-w-md z-50 px-4 py-3 rounded-xl text-sm shadow-lg '+(ok?'bg-[#0d2b1a] text-[#7ee2a8]':'bg-[#3a1212] text-[#ff9a9a]');
   clearTimeout(window._tt); window._tt=setTimeout(()=>t.classList.add('hidden'),6000);
 }
-function fmtUp(s){ if(s==null) return '-'; const d=Math.floor(s/86400),h=Math.floor(s%86400/3600),m=Math.floor(s%3600/60); return (d?d+'d ':'')+h+'u '+m+'m'; }
-function tile(label,val,accent,sub){ return `<div class="bg-yt-card rounded-2xl p-3 sm:p-4"><div class="text-[11px] sm:text-xs text-yt-mute leading-tight">${label}</div><div class="text-xl sm:text-2xl font-medium mt-0.5 sm:mt-1 ${accent||''}">${val}</div>${sub?`<div class="text-[10px] sm:text-xs text-yt-mute mt-0.5">${sub}</div>`:''}</div>`; }
+function fmtUp(s){ if(s==null) return '-'; const d=Math.floor(s/86400),h=Math.floor(s%86400/3600),m=Math.floor(s%3600/60); return d?d+'d '+h+'u':(h?h+'u '+m+'m':m+'m'); }
+// korte en lange variant van label en ondertitel: telefoon vs. groot scherm
+function tile(short,long,val,accent,subShort,subLong){
+  return `<div class="bg-yt-card rounded-xl sm:rounded-2xl p-2 sm:p-4 min-w-0">
+    <div class="text-[10px] sm:text-xs text-yt-mute leading-tight truncate"><span class="sm:hidden">${short}</span><span class="hidden sm:inline">${long}</span></div>
+    <div class="text-lg sm:text-2xl font-medium leading-tight sm:mt-1 ${accent||''}">${val}</div>
+    ${subShort?`<div class="text-[10px] sm:text-xs text-yt-mute leading-tight truncate"><span class="sm:hidden">${subShort}</span><span class="hidden sm:inline">${subLong}</span></div>`:'<div class="text-[10px] leading-tight">&nbsp;</div>'}
+  </div>`; }
 function fmtDate(d){ if(!d) return ''; const [y,m,dd]=d.split('-'); return dd+'-'+m+'-'+y; }
 function volOf(d){ const v=(window._vol||{})[d.screen_id]; if(v!==undefined) return v; return d.volume!=null?Math.round(d.volume/10):3; }
 function fmtAgo(s){ if(s<90) return 'zojuist'; if(s<5400) return Math.round(s/60)+' min geleden'; if(s<172800) return Math.round(s/3600)+' u geleden'; return Math.round(s/86400)+' d geleden'; }
+function fmtLeft(s){ const m=Math.ceil(s/60); return m>=90?Math.round(m/60)+' u':m+' min'; }
 function esc(s){ return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
 
 async function refresh(){
   let r; try { r = await (await fetch('api/status')).json(); } catch { $('state').textContent='GUI offline'; return; }
   const c=r.container;
   $('state').textContent = c.exists ? c.status : 'container niet gevonden';
-  $('state').className = 'px-3 py-1 rounded-full text-sm '+(c.status==='running'?'bg-[#0d2b1a] text-[#7ee2a8]':'bg-[#3a1212] text-[#ff9a9a]');
+  $('state').className = 'px-2.5 sm:px-3 py-1 rounded-full text-xs sm:text-sm '+(c.status==='running'?'bg-[#0d2b1a] text-[#7ee2a8]':'bg-[#3a1212] text-[#ff9a9a]');
   if(!window.tagInit && c.tag){ window.tagInit=true; const o=[...$('tagSel').options].find(x=>x.value===c.tag); if(o) $('tagSel').value=c.tag; else $('tagCustom').value=c.tag; }
   $('curTag').textContent=c.tag||'-'; $('curImg').textContent=c.image_id||'-';
-  const s=r.stats;
-  const sub=n=>`totaal ${n} sinds ${fmtDate(s.since)}`;
+  const s=r.stats, since=fmtDate(s.since);
   $('tiles').innerHTML =
-    tile('Uptime',fmtUp(c.uptime)) +
-    tile('Gedempt vandaag',s.today.muted,'',sub(s.total.muted)) +
-    tile('Ads overgeslagen vandaag',s.today.skipped_ads,'text-yt-blue',sub(s.total.skipped_ads)) +
-    tile('Segmenten overgeslagen vandaag',s.today.segments,'',sub(s.total.segments));
+    tile('Uptime','Uptime',fmtUp(c.uptime),'','','') +
+    tile('Gedempt','Gedempt vandaag',s.today.muted,'',`tot ${s.total.muted}`,`totaal ${s.total.muted} sinds ${since}`) +
+    tile('Ads','Ads overgeslagen vandaag',s.today.skipped_ads,'text-yt-blue',`tot ${s.total.skipped_ads}`,`totaal ${s.total.skipped_ads} sinds ${since}`) +
+    tile('Segm.','Segmenten overgeslagen vandaag',s.today.segments,'',`tot ${s.total.segments}`,`totaal ${s.total.segments} sinds ${since}`);
   if(!formDirty || !formLoaded){
     $('mute_ads').checked=r.config.mute_ads; $('skip_ads').checked=r.config.skip_ads;
     document.querySelectorAll('.cat').forEach(i=>i.checked=r.config.skip_categories.includes(i.value));
     formLoaded=true;
   }
+  const btn='h-8 w-8 rounded-full bg-yt-line hover:bg-[#4a4a4a] text-sm shrink-0';
+  const chip='text-[11px] sm:text-xs px-2.5 py-1 rounded-full bg-yt-line hover:bg-[#4a4a4a]';
   const devHtml = r.devices.length ? r.devices.map(d=>{
     const sid=esc(d.screen_id||'');
-    const open=((window._open||{})[d.screen_id]??isDesk)?'open':'';
     const chn=d.info&&d.info.channel?esc(d.info.channel):'';
     let bits=chn;
     if(d.video) bits+=`<span class="hidden sm:inline">${chn?' · ':''}${esc(d.video)}</span>`;
     if(d.ago!=null){ if(chn) bits+=' · '; else if(d.video) bits+='<span class="hidden sm:inline"> · </span>'; bits+=fmtAgo(d.ago); }
     return `
-    <div class="flex gap-2.5 sm:gap-3 bg-yt-hover/50 rounded-xl p-2.5 sm:p-3 min-w-0">
-      <div class="relative w-24 sm:w-40 shrink-0 self-start aspect-video rounded-lg overflow-hidden bg-black">
-        ${d.video?`<img src="https://i.ytimg.com/vi/${esc(d.video)}/mqdefault.jpg" class="w-full h-full object-cover" onerror="this.style.display='none'">`
-                 :`<div class="w-full h-full flex items-center justify-center text-yt-mute text-[10px] sm:text-xs text-center px-1">niets aan het afspelen</div>`}
-        <div class="absolute bottom-0 left-0 h-1 ${d.ago!=null&&d.ago<300?'bg-yt-red w-full':'bg-yt-line w-0'}"></div>
-      </div>
-      <div class="min-w-0 flex-1 break-words">
-        <div class="flex items-center gap-2"><span class="h-2.5 w-2.5 rounded-full shrink-0 ${d.online===true?'bg-emerald-400':(d.online===false?'bg-yt-line':'bg-amber-400')}"></span><b class="truncate">${esc(d.name)}</b>
-          <span class="text-xs ${d.online===true?'text-emerald-400 hidden sm:inline':'text-yt-mute'}">${d.online===true?'Online':(d.online===false?'Offline':'status onbekend')}</span></div>
-        ${d.info&&d.info.title?`<div class="text-sm font-medium leading-snug line-clamp-2">${esc(d.info.title)}</div>`:''}
-        ${bits?`<div class="text-xs text-yt-mute truncate">${bits}</div>`:''}
-        <div class="mt-1.5 flex flex-wrap items-center gap-1.5" data-id="${sid}">
-          <button onclick="ctl(this,'previous')" title="Vorige" class="w-8 h-8 rounded-full bg-yt-line hover:bg-[#4a4a4a] text-sm">⏮</button>
-          <button onclick="ctl(this,'play')" title="Afspelen" class="w-8 h-8 rounded-full bg-yt-line hover:bg-[#4a4a4a] text-sm">▶</button>
-          <button onclick="ctl(this,'pause')" title="Pauze" class="w-8 h-8 rounded-full bg-yt-line hover:bg-[#4a4a4a] text-sm">⏸</button>
-          <button onclick="ctl(this,'next')" title="Volgende" class="w-8 h-8 rounded-full bg-yt-line hover:bg-[#4a4a4a] text-sm">⏭</button>
-          <label class="flex items-center gap-1.5 h-8 px-2.5 rounded-full bg-yt-line text-xs flex-1 min-w-[7.5rem]" title="Volume">🔊
-            <input type="range" min="0" max="10" step="1" value="${volOf(d)}" data-id="${sid}"
-              oninput="this.nextElementSibling.textContent=this.value" onchange="volSet(this)"
-              onpointerdown="window._busy=true" onpointerup="window._busy=false" onpointercancel="window._busy=false"
-              class="flex-1 min-w-0 accent-[#3ea6ff]"><span class="w-4 text-right">${volOf(d)}</span></label>
+    <div class="bg-yt-hover/50 rounded-xl p-2 sm:p-3 min-w-0">
+      <div class="flex gap-2 sm:gap-3 min-w-0">
+        <div class="relative w-20 sm:w-40 shrink-0 self-start aspect-video rounded-md sm:rounded-lg overflow-hidden bg-black">
+          ${d.video?`<img src="https://i.ytimg.com/vi/${esc(d.video)}/mqdefault.jpg" class="w-full h-full object-cover" onerror="this.style.display='none'">`
+                   :`<div class="w-full h-full flex items-center justify-center text-yt-mute text-[9px] sm:text-xs text-center px-1 leading-tight">niets aan het afspelen</div>`}
+          <div class="absolute bottom-0 left-0 h-0.5 sm:h-1 ${d.ago!=null&&d.ago<300?'bg-yt-red w-full':'bg-yt-line w-0'}"></div>
         </div>
-        <details class="mt-1.5" ${open} ontoggle="(window._open=window._open||{})['${sid}']=this.open">
-          <summary class="text-xs text-yt-mute cursor-pointer">Meer <span class="chev">▾</span></summary>
-          <div class="mt-1.5 flex flex-wrap gap-1.5" data-id="${sid}">
-            <button onclick="ctl(this,'play_video')" class="text-xs px-3 py-1 rounded-full bg-yt-line hover:bg-[#4a4a4a]">Start link</button>
-            <button data-id="${sid}" data-name="${esc(d.name)}" onclick="pauseDev(this)" class="text-xs px-3 py-1 rounded-full bg-yt-line hover:bg-[#4a4a4a]">Bypass</button>
-            <button data-id="${sid}" data-name="${esc(d.name)}" onclick="renameDev(this)" class="text-xs px-3 py-1 rounded-full bg-yt-line hover:bg-[#4a4a4a]">Hernoem</button>
-            <button data-id="${sid}" data-name="${esc(d.name)}" onclick="removeDev(this)" class="text-xs px-3 py-1 rounded-full bg-[#3a1212] text-[#ff9a9a] hover:bg-[#4a1818]">Ontkoppel</button>
-          </div>
-          <div class="text-xs text-yt-mute mt-1.5">${d.model?'Model: '+esc(d.model):`<button data-id="${sid}" onclick="getModel(this)" class="underline hover:text-white">Model ophalen</button>`}</div>
-          <div class="text-xs text-[#717171] mt-1 line-clamp-2 break-words">${esc(d.last||'nog geen logregels')}</div>
-        </details>
+        <div class="min-w-0 flex-1 break-words">
+          <div class="flex items-center gap-1.5 sm:gap-2"><span class="h-2 w-2 sm:h-2.5 sm:w-2.5 rounded-full shrink-0 ${d.online===true?'bg-emerald-400':(d.online===false?'bg-yt-line':'bg-amber-400')}"></span><b class="truncate text-sm sm:text-base">${esc(d.name)}</b>
+            <span class="text-[11px] sm:text-xs ${d.online===true?'text-emerald-400 hidden sm:inline':'text-yt-mute'}">${d.online===true?'Online':(d.online===false?'Offline':'status onbekend')}</span></div>
+          ${d.info&&d.info.title?`<div class="text-[13px] sm:text-sm font-medium leading-snug line-clamp-2 sm:line-clamp-2">${esc(d.info.title)}</div>`:''}
+          ${bits?`<div class="text-[11px] sm:text-xs text-yt-mute truncate">${bits}</div>`:''}
+          ${d.model?`<div class="text-[11px] sm:text-xs text-yt-mute truncate">${esc(d.model)}</div>`:`<div class="text-[11px] sm:text-xs"><button data-id="${sid}" onclick="getModel(this)" class="underline text-yt-mute hover:text-white">Model ophalen</button></div>`}
+        </div>
       </div>
+      <div class="mt-1.5 flex items-center gap-1.5" data-id="${sid}">
+        <button onclick="ctl(this,'previous')" title="Vorige" class="${btn}">⏮</button>
+        <button onclick="ctl(this,'play')" title="Afspelen" class="${btn}">▶</button>
+        <button onclick="ctl(this,'pause')" title="Pauze" class="${btn}">⏸</button>
+        <button onclick="ctl(this,'next')" title="Volgende" class="${btn}">⏭</button>
+        <label class="flex items-center gap-1.5 h-8 px-2.5 rounded-full bg-yt-line text-xs flex-1 min-w-0" title="Volume">🔊
+          <input type="range" min="0" max="10" step="1" value="${volOf(d)}" data-id="${sid}"
+            oninput="this.nextElementSibling.textContent=this.value" onchange="volSet(this)"
+            onpointerdown="window._busy=true" onpointerup="window._busy=false" onpointercancel="window._busy=false"
+            class="flex-1 min-w-0 accent-[#3ea6ff]"><span class="w-4 text-right">${volOf(d)}</span></label>
+      </div>
+      <div class="mt-1.5 flex flex-wrap items-center gap-1.5" data-id="${sid}">
+        <button onclick="ctl(this,'play_video')" class="${chip}">Start link</button>
+        <button data-id="${sid}" data-name="${esc(d.name)}" onclick="pauseDev(this)" class="${chip}">Bypass</button>
+        <button data-id="${sid}" data-name="${esc(d.name)}" onclick="renameDev(this)" class="${chip}">Hernoem</button>
+        <button data-id="${sid}" data-name="${esc(d.name)}" onclick="removeDev(this)" class="text-[11px] sm:text-xs px-2.5 py-1 rounded-full bg-[#3a1212] text-[#ff9a9a] hover:bg-[#4a1818]">Ontkoppel</button>
+      </div>
+      <div class="hidden sm:block text-xs text-[#717171] mt-2 line-clamp-1 break-words">${esc(d.last||'nog geen logregels')}</div>
     </div>`; }).join('') : '<div class="text-sm text-yt-mute">Geen apparaten in config.json</div>';
   // Alleen opnieuw tekenen als er iets veranderd is, en nooit tijdens een tik of actie.
   if(devHtml!==window._devHtml && !window._busy){ window._devHtml=devHtml; $('devices').innerHTML=devHtml; }
-  $('paused').innerHTML=(r.paused||[]).map(p=>`<div class="flex items-center justify-between gap-3 rounded-xl px-4 py-3 bg-[#3a2a08] text-[#ffd479]">
-      <span><b>${esc(p.name||'Tv')}</b> staat op bypass: ads en sponsors worden niet geblokkeerd · nog ${fmtLeft(p.left)}</span>
-      <button data-id="${esc(p.screen_id)}" onclick="resumeDev(this)" class="text-sm px-3 py-1 rounded-full bg-[#ffd479] text-black font-medium">Bypass stoppen</button></div>`).join('');
+  $('paused').innerHTML=(r.paused||[]).map(p=>`<div class="flex items-center justify-between gap-2 rounded-xl px-3 py-2 bg-[#3a2a08] text-[#ffd479] text-xs sm:text-sm">
+      <span><b>${esc(p.name||'Tv')}</b> staat op bypass · nog ${fmtLeft(p.left)}</span>
+      <button data-id="${esc(p.screen_id)}" onclick="resumeDev(this)" class="px-3 py-1 rounded-full bg-[#ffd479] text-black font-medium whitespace-nowrap">Stop bypass</button></div>`).join('');
   $('ver').textContent=r.version||'oud (geen versienummer)';
   const k=r.collector||{}, li=$('logInfo');
   if(k.error){ li.textContent='Log-lezer: '+k.error; li.classList.remove('hidden'); }
-  else if(!r.logs.length){ li.textContent='Verbonden met de container ('+(k.container||'?')+'), maar er zijn nog geen logregels ontvangen. Geladen uit oude logs: '+(k.prefilled||0)+'.'; li.className='mb-3 text-sm rounded-xl px-3 py-2 bg-yt-hover text-yt-mute'; }
+  else if(!r.logs.length){ li.textContent='Verbonden met de container ('+(k.container||'?')+'), maar er zijn nog geen logregels ontvangen. Geladen uit oude logs: '+(k.prefilled||0)+'.'; li.className='mb-2 text-xs sm:text-sm rounded-xl px-3 py-2 bg-yt-hover text-yt-mute'; }
   else li.classList.add('hidden');
   const lg=$('logs'), stick = lg.scrollTop+lg.clientHeight>=lg.scrollHeight-20;
   lg.textContent=r.logs.join('\n'); if(stick) lg.scrollTop=lg.scrollHeight;
@@ -232,7 +229,6 @@ async function volSet(el){
 }
 async function ctl(b,action){
   const id=b.parentElement.dataset.id; let value=null;
-  if(action==='volume'){ value=prompt('Volume (0-100):'); if(value===null) return; }
   if(action==='play_video'){ value=prompt('Plak een YouTube-link of video-ID:'); if(!value) return; }
   const old=b.textContent; window._busy=true; b.disabled=true; b.textContent='…';
   try {
@@ -241,6 +237,9 @@ async function ctl(b,action){
   } catch(e) { b.textContent='✗'; alert('Geen verbinding met de GUI: '+e); }
   finally { setTimeout(()=>{ b.textContent=old; b.disabled=false; window._busy=false; },1200); }
 }
+function pauseDev(b){ const m=prompt('Hoeveel minuten bypass voor "'+b.dataset.name+'"? De tv blijft gekoppeld. iSponsorBlockTV wordt kort herstart.','30'); if(!m) return;
+  post('api/devices/pause',{screen_id:b.dataset.id,minutes:m}).then(r=>{ toast(r.message,r.ok); refresh(); }); }
+async function resumeDev(b){ const r=await post('api/devices/resume',{screen_id:b.dataset.id}); toast(r.message,r.ok); refresh(); }
 async function renameDev(b){ const n=prompt('Nieuwe naam:',b.dataset.name); if(!n) return;
   const r=await post('api/devices/rename',{screen_id:b.dataset.id,name:n}); toast(r.message,r.ok); refresh(); }
 async function addDev(){ const code=$('pairCode').value; if(!code) return toast('Vul eerst de tv-code in.',false);
