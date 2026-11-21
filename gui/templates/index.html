@@ -17,6 +17,8 @@ tailwind.config = { darkMode: 'class', theme: { extend: { fontFamily: { sans: ['
   .switch::after { content: ""; position: absolute; top: -3px; left: 0; width: 20px; height: 20px; border-radius: 50%; background: #f1f1f1; transition: .15s; box-shadow: 0 1px 3px rgba(0,0,0,.5); }
   input:checked + .switch { background: #3ea6ff66; }
   input:checked + .switch::after { background: #3ea6ff; left: 16px; }
+  summary { list-style: none; } summary::-webkit-details-marker { display: none; }
+  details[open] > summary .chev { transform: rotate(180deg); } .chev { display:inline-block; transition: .15s; }
   .scroll::-webkit-scrollbar { width: 10px } .scroll::-webkit-scrollbar-thumb { background: #3f3f3f; border-radius: 9999px }
 </style>
 </head>
@@ -35,14 +37,15 @@ tailwind.config = { darkMode: 'class', theme: { extend: { fontFamily: { sans: ['
   </div>
 </header>
 
-<main class="max-w-6xl mx-auto p-3 sm:p-4 space-y-4 overflow-x-hidden">
+<main class="max-w-6xl mx-auto p-2.5 sm:p-4 space-y-3 sm:space-y-4 overflow-x-hidden">
   
 
-  <section class="grid grid-cols-2 md:grid-cols-4 gap-3" id="tiles"></section>
+  <section class="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-3" id="tiles"></section>
 
-  <div class="grid lg:grid-cols-2 gap-4">
-    <section class="bg-yt-card rounded-2xl p-5 space-y-4">
-      <h2 class="text-lg font-medium">Instellingen</h2>
+  <div class="grid lg:grid-cols-2 gap-3 sm:gap-4">
+    <section class="bg-yt-card rounded-2xl"><details class="fold p-4 sm:p-5">
+      <summary class="text-lg font-medium cursor-pointer flex items-center justify-between">Instellingen <span class="chev text-yt-mute text-sm">▾</span></summary>
+      <div class="space-y-4 mt-4">
       <label class="flex items-center justify-between gap-4 cursor-pointer">
         <span>Advertenties dempen <span class="text-yt-mute text-sm">mute_ads</span></span>
         <span><input type="checkbox" id="mute_ads" class="sr-only peer"><span class="switch block"></span></span>
@@ -61,10 +64,12 @@ tailwind.config = { darkMode: 'class', theme: { extend: { fontFamily: { sans: ['
         {% endfor %}
       </div>
       <button onclick="saveConfig()" class="w-full bg-[#f1f1f1] hover:bg-white text-black rounded-full py-2.5 font-medium transition">Opslaan &amp; herstarten</button>
+      </div></details>
     </section>
 
-    <section class="bg-yt-card rounded-2xl p-5 space-y-3">
-      <h2 class="text-lg font-medium">Versie &amp; updates</h2>
+    <section class="bg-yt-card rounded-2xl"><details class="fold p-4 sm:p-5">
+      <summary class="text-lg font-medium cursor-pointer flex items-center justify-between">Versie &amp; updates <span class="chev text-yt-mute text-sm">▾</span></summary>
+      <div class="space-y-3 mt-3">
       <div class="text-sm text-yt-mute">Huidige tag <b id="curTag" class="text-[#f1f1f1]">-</b> · image <span id="curImg">-</span></div>
       <select id="tagSel" class="w-full bg-yt-hover rounded-xl p-2.5 outline-none" onchange="document.getElementById('tagCustom').value=''">
         {% for t in presets %}<option value="{{t}}">{{t}}</option>{% endfor %}
@@ -72,31 +77,37 @@ tailwind.config = { darkMode: 'class', theme: { extend: { fontFamily: { sans: ['
       <input id="tagCustom" placeholder="Of eigen tag, bijv. develop" class="w-full bg-yt-hover rounded-xl p-2.5 text-sm outline-none focus:ring-1 focus:ring-yt-blue">
       <button onclick="applyTag()" id="updBtn" class="w-full bg-yt-blue hover:brightness-110 text-black rounded-full py-2.5 font-medium transition">Toepassen / Check &amp; Update</button>
       <p class="text-xs text-yt-mute">Pullt de image van GHCR en maakt de container opnieuw aan met dezelfde instellingen. Je tv-koppelingen blijven behouden.</p>
+      </div></details>
     </section>
   </div>
 
-  <section class="bg-yt-card rounded-2xl p-5">
-    <h2 class="text-lg font-medium mb-4">Tv's</h2>
+  <section class="bg-yt-card rounded-2xl p-3 sm:p-5">
+    <h2 class="text-lg font-medium mb-3 sm:mb-4">Tv's</h2>
     <div id="paused" class="space-y-2 mb-4"></div>
-    <div id="devices" class="grid xl:grid-cols-2 gap-4"></div>
-    <div class="mt-5 pt-4 border-t border-yt-line/60 flex flex-wrap gap-2">
+    <div id="devices" class="grid xl:grid-cols-2 gap-3 sm:gap-4"></div>
+    <details class="fold mt-4 pt-3 border-t border-yt-line/60"><summary class="text-sm text-yt-mute cursor-pointer">+ Tv koppelen</summary>
+    <div class="mt-3 flex flex-wrap gap-2">
       <input id="pairCode" placeholder="Tv-code (YouTube → Instellingen → Koppelen met tv-code)" class="w-full sm:flex-1 min-w-0 bg-yt-hover rounded-full px-4 py-2 text-sm outline-none focus:ring-1 focus:ring-yt-blue">
       <input id="pairName" placeholder="Naam (optioneel)" class="bg-yt-hover rounded-full px-4 py-2 text-sm outline-none focus:ring-1 focus:ring-yt-blue">
       <button onclick="addDev()" class="bg-[#f1f1f1] hover:bg-white text-black rounded-full px-5 py-2 text-sm font-medium transition">Tv koppelen</button>
-    </div>
+    </div></details>
   </section>
 
-  <section class="bg-yt-card rounded-2xl p-5">
-    <h2 class="text-lg font-medium mb-3">Live logs</h2>
+  <section class="bg-yt-card rounded-2xl"><details class="fold p-4 sm:p-5">
+    <summary class="text-lg font-medium cursor-pointer flex items-center justify-between">Live logs <span class="chev text-yt-mute text-sm">▾</span></summary>
+    <div class="mt-3">
     <div id="logInfo" class="hidden mb-3 text-sm rounded-xl px-3 py-2 bg-[#3a1212] text-[#ff9a9a]"></div>
-    <pre id="logs" class="scroll text-xs bg-black/60 rounded-xl p-3 h-64 overflow-auto whitespace-pre-wrap text-[#cfcfcf]"></pre>
+    <pre id="logs" class="scroll text-xs bg-black/60 rounded-xl p-3 h-48 sm:h-64 overflow-auto whitespace-pre-wrap text-[#cfcfcf]"></pre>
+    </div></details>
   </section>
-  <footer class="text-center text-xs text-[#717171] pb-16 pt-2">Versie <span id="ver">?</span></footer>
+  <footer class="text-center text-xs text-[#717171] pb-10 pt-1">Versie <span id="ver">?</span></footer>
 </main>
 <div id="toast" class="hidden fixed bottom-4 left-4 right-4 sm:left-auto sm:max-w-md z-50 px-4 py-3 rounded-xl text-sm shadow-lg"></div>
 
 <script>
 const $ = id => document.getElementById(id);
+const isDesk = matchMedia('(min-width:640px)').matches;
+document.querySelectorAll('details.fold').forEach(d=>{ if(isDesk) d.open=true; });
 let formDirty = false, formLoaded = false;
 document.addEventListener('change', e => { if (e.target.closest('section')) formDirty = true; });
 
@@ -106,7 +117,7 @@ function toast(msg, ok=true){
   clearTimeout(window._tt); window._tt=setTimeout(()=>t.classList.add('hidden'),6000);
 }
 function fmtUp(s){ if(s==null) return '-'; const d=Math.floor(s/86400),h=Math.floor(s%86400/3600),m=Math.floor(s%3600/60); return (d?d+'d ':'')+h+'u '+m+'m'; }
-function tile(label,val,accent,sub){ return `<div class="bg-yt-card rounded-2xl p-4"><div class="text-xs text-yt-mute">${label}</div><div class="text-2xl font-medium mt-1 ${accent||''}">${val}</div>${sub?`<div class="text-xs text-yt-mute mt-0.5">${sub}</div>`:''}</div>`; }
+function tile(label,val,accent,sub){ return `<div class="bg-yt-card rounded-2xl p-3 sm:p-4"><div class="text-[11px] sm:text-xs text-yt-mute leading-tight">${label}</div><div class="text-xl sm:text-2xl font-medium mt-0.5 sm:mt-1 ${accent||''}">${val}</div>${sub?`<div class="text-[10px] sm:text-xs text-yt-mute mt-0.5">${sub}</div>`:''}</div>`; }
 function fmtDate(d){ if(!d) return ''; const [y,m,dd]=d.split('-'); return dd+'-'+m+'-'+y; }
 function volOf(d){ const v=(window._vol||{})[d.screen_id]; if(v!==undefined) return v; return d.volume!=null?Math.round(d.volume/10):3; }
 function fmtAgo(s){ if(s<90) return 'zojuist'; if(s<5400) return Math.round(s/60)+' min geleden'; if(s<172800) return Math.round(s/3600)+' u geleden'; return Math.round(s/86400)+' d geleden'; }
@@ -131,40 +142,49 @@ async function refresh(){
     document.querySelectorAll('.cat').forEach(i=>i.checked=r.config.skip_categories.includes(i.value));
     formLoaded=true;
   }
-  const devHtml = r.devices.length ? r.devices.map(d=>`
-    <div class="flex gap-3 bg-yt-hover/50 rounded-xl p-3 min-w-0">
-      <div class="relative w-28 sm:w-40 shrink-0 self-start aspect-video rounded-lg overflow-hidden bg-black">
+  const devHtml = r.devices.length ? r.devices.map(d=>{
+    const sid=esc(d.screen_id||'');
+    const open=((window._open||{})[d.screen_id]??isDesk)?'open':'';
+    const chn=d.info&&d.info.channel?esc(d.info.channel):'';
+    let bits=chn;
+    if(d.video) bits+=`<span class="hidden sm:inline">${chn?' · ':''}${esc(d.video)}</span>`;
+    if(d.ago!=null){ if(chn) bits+=' · '; else if(d.video) bits+='<span class="hidden sm:inline"> · </span>'; bits+=fmtAgo(d.ago); }
+    return `
+    <div class="flex gap-2.5 sm:gap-3 bg-yt-hover/50 rounded-xl p-2.5 sm:p-3 min-w-0">
+      <div class="relative w-24 sm:w-40 shrink-0 self-start aspect-video rounded-lg overflow-hidden bg-black">
         ${d.video?`<img src="https://i.ytimg.com/vi/${esc(d.video)}/mqdefault.jpg" class="w-full h-full object-cover" onerror="this.style.display='none'">`
                  :`<div class="w-full h-full flex items-center justify-center text-yt-mute text-[10px] sm:text-xs text-center px-1">niets aan het afspelen</div>`}
-        ${d.video?`<span class="absolute bottom-1 right-1 bg-black/80 text-[10px] px-1.5 py-0.5 rounded">AFSPELEN</span>`:''}
         <div class="absolute bottom-0 left-0 h-1 ${d.ago!=null&&d.ago<300?'bg-yt-red w-full':'bg-yt-line w-0'}"></div>
       </div>
       <div class="min-w-0 flex-1 break-words">
-        <div class="flex flex-wrap items-center gap-x-2"><span class="h-2.5 w-2.5 rounded-full shrink-0 ${d.online===true?'bg-emerald-400':(d.online===false?'bg-yt-line':'bg-amber-400')}"></span><b class="truncate">${esc(d.name)}</b>
-          <span class="text-xs ${d.online===true?'text-emerald-400':'text-yt-mute'}">${d.online===true?'Online':(d.online===false?'Offline':'status onbekend')}</span></div>
-        ${d.info&&d.info.title?`<div class="text-sm font-medium mt-1 line-clamp-2">${esc(d.info.title)}</div><div class="text-xs text-yt-mute">${esc(d.info.channel||'')}</div>`:''}
-        <div class="text-xs text-yt-mute mt-1 truncate">${d.video?esc(d.video):'—'}${d.ago!=null?' · laatste activiteit '+fmtAgo(d.ago):''}</div>
-        <div class="text-xs text-yt-mute mt-1">${d.model?'Model: '+esc(d.model):`<button data-id="${esc(d.screen_id||'')}" onclick="getModel(this)" class="underline hover:text-white">Model ophalen</button>`}</div>
-        <div class="text-xs text-[#717171] mt-1 line-clamp-2 break-words">${esc(d.last||'nog geen logregels')}</div>
-        <div class="mt-2 flex flex-wrap items-center gap-1.5" data-id="${esc(d.screen_id||'')}">
+        <div class="flex items-center gap-2"><span class="h-2.5 w-2.5 rounded-full shrink-0 ${d.online===true?'bg-emerald-400':(d.online===false?'bg-yt-line':'bg-amber-400')}"></span><b class="truncate">${esc(d.name)}</b>
+          <span class="text-xs ${d.online===true?'text-emerald-400 hidden sm:inline':'text-yt-mute'}">${d.online===true?'Online':(d.online===false?'Offline':'status onbekend')}</span></div>
+        ${d.info&&d.info.title?`<div class="text-sm font-medium leading-snug line-clamp-2">${esc(d.info.title)}</div>`:''}
+        ${bits?`<div class="text-xs text-yt-mute truncate">${bits}</div>`:''}
+        <div class="mt-1.5 flex flex-wrap items-center gap-1.5" data-id="${sid}">
           <button onclick="ctl(this,'previous')" title="Vorige" class="w-8 h-8 rounded-full bg-yt-line hover:bg-[#4a4a4a] text-sm">⏮</button>
           <button onclick="ctl(this,'play')" title="Afspelen" class="w-8 h-8 rounded-full bg-yt-line hover:bg-[#4a4a4a] text-sm">▶</button>
           <button onclick="ctl(this,'pause')" title="Pauze" class="w-8 h-8 rounded-full bg-yt-line hover:bg-[#4a4a4a] text-sm">⏸</button>
           <button onclick="ctl(this,'next')" title="Volgende" class="w-8 h-8 rounded-full bg-yt-line hover:bg-[#4a4a4a] text-sm">⏭</button>
-          <label class="flex items-center gap-2 h-8 px-3 rounded-full bg-yt-line text-xs" title="Volume">🔊
-            <input type="range" min="0" max="10" step="1" value="${volOf(d)}" data-id="${esc(d.screen_id||'')}"
+          <label class="flex items-center gap-1.5 h-8 px-2.5 rounded-full bg-yt-line text-xs flex-1 min-w-[7.5rem]" title="Volume">🔊
+            <input type="range" min="0" max="10" step="1" value="${volOf(d)}" data-id="${sid}"
               oninput="this.nextElementSibling.textContent=this.value" onchange="volSet(this)"
               onpointerdown="window._busy=true" onpointerup="window._busy=false" onpointercancel="window._busy=false"
-              class="w-24 accent-[#3ea6ff]"><span class="w-5 text-right">${volOf(d)}</span></label>
-          <button onclick="ctl(this,'play_video')" title="Start een link" class="px-3 h-8 rounded-full bg-yt-line hover:bg-[#4a4a4a] text-xs">Start link</button>
+              class="flex-1 min-w-0 accent-[#3ea6ff]"><span class="w-4 text-right">${volOf(d)}</span></label>
         </div>
-        <div class="mt-2 flex gap-2">
-          <button data-id="${esc(d.screen_id||'')}" data-name="${esc(d.name)}" onclick="pauseDev(this)" class="text-xs px-3 py-1 rounded-full bg-yt-line hover:bg-[#4a4a4a]">Bypass</button>
-          <button data-id="${esc(d.screen_id||'')}" data-name="${esc(d.name)}" onclick="renameDev(this)" class="text-xs px-3 py-1 rounded-full bg-yt-line hover:bg-[#4a4a4a]">Hernoem</button>
-          <button data-id="${esc(d.screen_id||'')}" data-name="${esc(d.name)}" onclick="removeDev(this)" class="text-xs px-3 py-1 rounded-full bg-[#3a1212] text-[#ff9a9a] hover:bg-[#4a1818]">Ontkoppel</button>
-        </div>
+        <details class="mt-1.5" ${open} ontoggle="(window._open=window._open||{})['${sid}']=this.open">
+          <summary class="text-xs text-yt-mute cursor-pointer">Meer <span class="chev">▾</span></summary>
+          <div class="mt-1.5 flex flex-wrap gap-1.5" data-id="${sid}">
+            <button onclick="ctl(this,'play_video')" class="text-xs px-3 py-1 rounded-full bg-yt-line hover:bg-[#4a4a4a]">Start link</button>
+            <button data-id="${sid}" data-name="${esc(d.name)}" onclick="pauseDev(this)" class="text-xs px-3 py-1 rounded-full bg-yt-line hover:bg-[#4a4a4a]">Bypass</button>
+            <button data-id="${sid}" data-name="${esc(d.name)}" onclick="renameDev(this)" class="text-xs px-3 py-1 rounded-full bg-yt-line hover:bg-[#4a4a4a]">Hernoem</button>
+            <button data-id="${sid}" data-name="${esc(d.name)}" onclick="removeDev(this)" class="text-xs px-3 py-1 rounded-full bg-[#3a1212] text-[#ff9a9a] hover:bg-[#4a1818]">Ontkoppel</button>
+          </div>
+          <div class="text-xs text-yt-mute mt-1.5">${d.model?'Model: '+esc(d.model):`<button data-id="${sid}" onclick="getModel(this)" class="underline hover:text-white">Model ophalen</button>`}</div>
+          <div class="text-xs text-[#717171] mt-1 line-clamp-2 break-words">${esc(d.last||'nog geen logregels')}</div>
+        </details>
       </div>
-    </div>`).join('') : '<div class="text-sm text-yt-mute">Geen apparaten in config.json</div>';
+    </div>`; }).join('') : '<div class="text-sm text-yt-mute">Geen apparaten in config.json</div>';
   // Alleen opnieuw tekenen als er iets veranderd is, en nooit tijdens een tik of actie.
   if(devHtml!==window._devHtml && !window._busy){ window._devHtml=devHtml; $('devices').innerHTML=devHtml; }
   $('paused').innerHTML=(r.paused||[]).map(p=>`<div class="flex items-center justify-between gap-3 rounded-xl px-4 py-3 bg-[#3a2a08] text-[#ffd479]">
