@@ -140,7 +140,7 @@ async function refresh(){
     formLoaded=true;
   }
   const btn='h-8 w-8 rounded-full bg-yt-line hover:bg-[#4a4a4a] text-sm shrink-0';
-  const chip='text-[11px] sm:text-xs px-2.5 py-1 rounded-full bg-yt-line hover:bg-[#4a4a4a]';
+  const chip='text-xs px-3 h-8 rounded-full bg-yt-line hover:bg-[#4a4a4a]';
   const devHtml = r.devices.length ? r.devices.map(d=>{
     const sid=esc(d.screen_id||'');
     const chn=d.info&&d.info.channel?esc(d.info.channel):'';
@@ -174,11 +174,11 @@ async function refresh(){
             onpointerdown="window._busy=true" onpointerup="window._busy=false" onpointercancel="window._busy=false"
             class="flex-1 min-w-0 accent-[#3ea6ff]"><span class="w-4 text-right">${volOf(d)}</span></label>
       </div>
-      <div class="mt-1.5 flex flex-wrap items-center gap-1.5" data-id="${sid}">
+      <div class="mt-2 flex flex-wrap items-center gap-1.5" data-id="${sid}">
         <button onclick="ctl(this,'play_video')" class="${chip}">Start link</button>
         <button data-id="${sid}" data-name="${esc(d.name)}" onclick="pauseDev(this)" class="${chip}">Bypass</button>
         <button data-id="${sid}" data-name="${esc(d.name)}" onclick="renameDev(this)" class="${chip}">Hernoem</button>
-        <button data-id="${sid}" data-name="${esc(d.name)}" onclick="removeDev(this)" class="text-[11px] sm:text-xs px-2.5 py-1 rounded-full bg-[#3a1212] text-[#ff9a9a] hover:bg-[#4a1818]">Ontkoppel</button>
+        <button data-id="${sid}" data-name="${esc(d.name)}" onclick="removeDev(this)" class="text-xs px-3 h-8 rounded-full bg-[#3a1212] text-[#ff9a9a] hover:bg-[#4a1818]">Ontkoppel</button>
       </div>
       <div class="hidden sm:block text-xs text-[#717171] mt-2 line-clamp-1 break-words">${esc(d.last||'nog geen logregels')}</div>
     </div>`; }).join('') : '<div class="text-sm text-yt-mute">Geen apparaten in config.json</div>';
