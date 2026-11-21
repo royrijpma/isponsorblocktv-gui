@@ -22,7 +22,7 @@ CATEGORIES = ["sponsor", "selfpromo", "exclusive_access", "interaction",
               "intro", "outro", "preview", "filler", "music_offtopic", "hook"]
 PRESET_TAGS = ["latest", "close-ads-5s"]
 
-VERSION = "2026-11-18.18"
+VERSION = "2026-11-21.19"
 app = Flask(__name__)
 client = docker.from_env()
 file_lock = threading.Lock()
@@ -440,6 +440,7 @@ def device_status(cfg):
         out.append({"screen_id": d.get("screen_id"), "name": name, "connected": connected,
                     "online": avail.get(d.get("screen_id")), "ago": ago,
                     "model": load_info().get(d.get("screen_id") or "", {}).get("model"),
+                    "volume": load_info().get(d.get("screen_id") or "", {}).get("volume"),
                     "video": video, "info": video_info(video) if video else None,
                     "last": shown[-160:]})
     return out
@@ -598,7 +599,7 @@ def api_dev_info():
         model = asyncio.run(_fetch_model(sid, dev.get("name")))
         with file_lock:
             info = load_info()
-            info[sid] = {"model": model, "fetched": int(time.time())}
+            info.setdefault(sid, {}).update({"model": model, "fetched": int(time.time())})
             atomic_write(INFO_PATH, info)
         return jsonify({"ok": True, "message": f"Model: {model}"})
     except Exception as e:
@@ -617,6 +618,11 @@ def api_dev_control():
         if not dev:
             return jsonify({"ok": False, "message": "Tv niet gevonden in config."}), 404
         asyncio.run(_control(dev["screen_id"], dev.get("name"), action, d.get("value")))
+        if action == "volume":
+            with file_lock:
+                info = load_info()
+                info.setdefault(dev["screen_id"], {})["volume"] = max(0, min(100, int(d.get("value"))))
+                atomic_write(INFO_PATH, info)
         return jsonify({"ok": True, "message": "Verstuurd."})
     except Exception as e:
         return jsonify({"ok": False, "message": str(e) or type(e).__name__}), 500

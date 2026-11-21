@@ -108,6 +108,7 @@ function toast(msg, ok=true){
 function fmtUp(s){ if(s==null) return '-'; const d=Math.floor(s/86400),h=Math.floor(s%86400/3600),m=Math.floor(s%3600/60); return (d?d+'d ':'')+h+'u '+m+'m'; }
 function tile(label,val,accent,sub){ return `<div class="bg-yt-card rounded-2xl p-4"><div class="text-xs text-yt-mute">${label}</div><div class="text-2xl font-medium mt-1 ${accent||''}">${val}</div>${sub?`<div class="text-xs text-yt-mute mt-0.5">${sub}</div>`:''}</div>`; }
 function fmtDate(d){ if(!d) return ''; const [y,m,dd]=d.split('-'); return dd+'-'+m+'-'+y; }
+function volOf(d){ const v=(window._vol||{})[d.screen_id]; if(v!==undefined) return v; return d.volume!=null?Math.round(d.volume/10):3; }
 function fmtAgo(s){ if(s<90) return 'zojuist'; if(s<5400) return Math.round(s/60)+' min geleden'; if(s<172800) return Math.round(s/3600)+' u geleden'; return Math.round(s/86400)+' d geleden'; }
 function esc(s){ return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
 
@@ -151,10 +152,10 @@ async function refresh(){
           <button onclick="ctl(this,'pause')" title="Pauze" class="w-8 h-8 rounded-full bg-yt-line hover:bg-[#4a4a4a] text-sm">⏸</button>
           <button onclick="ctl(this,'next')" title="Volgende" class="w-8 h-8 rounded-full bg-yt-line hover:bg-[#4a4a4a] text-sm">⏭</button>
           <label class="flex items-center gap-2 h-8 px-3 rounded-full bg-yt-line text-xs" title="Volume">🔊
-            <input type="range" min="0" max="10" step="1" value="${(window._vol||{})[d.screen_id]??3}" data-id="${esc(d.screen_id||'')}"
+            <input type="range" min="0" max="10" step="1" value="${volOf(d)}" data-id="${esc(d.screen_id||'')}"
               oninput="this.nextElementSibling.textContent=this.value" onchange="volSet(this)"
               onpointerdown="window._busy=true" onpointerup="window._busy=false" onpointercancel="window._busy=false"
-              class="w-24 accent-[#3ea6ff]"><span class="w-5 text-right">${(window._vol||{})[d.screen_id]??3}</span></label>
+              class="w-24 accent-[#3ea6ff]"><span class="w-5 text-right">${volOf(d)}</span></label>
           <button onclick="ctl(this,'play_video')" title="Start een link" class="px-3 h-8 rounded-full bg-yt-line hover:bg-[#4a4a4a] text-xs">Start link</button>
         </div>
         <div class="mt-2 flex gap-2">
