@@ -22,7 +22,7 @@ CATEGORIES = ["sponsor", "selfpromo", "exclusive_access", "interaction",
               "intro", "outro", "preview", "filler", "music_offtopic", "hook"]
 PRESET_TAGS = ["latest", "close-ads-5s"]
 
-VERSION = "2026-11-21.22"
+VERSION = "2026-11-21.23"
 app = Flask(__name__)
 client = docker.from_env()
 file_lock = threading.Lock()

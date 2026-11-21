@@ -143,6 +143,7 @@ async function refresh(){
   const chip='text-xs px-3 h-8 rounded-full bg-yt-line hover:bg-[#4a4a4a]';
   const devHtml = r.devices.length ? r.devices.map(d=>{
     const sid=esc(d.screen_id||'');
+    const open=!!(window._open||{})[d.screen_id];
     const chn=d.info&&d.info.channel?esc(d.info.channel):'';
     let bits=chn;
     if(d.video) bits+=`<span class="hidden sm:inline">${chn?' · ':''}${esc(d.video)}</span>`;
@@ -174,7 +175,10 @@ async function refresh(){
             onpointerdown="window._busy=true" onpointerup="window._busy=false" onpointercancel="window._busy=false"
             class="flex-1 min-w-0 accent-[#3ea6ff]"><span class="w-4 text-right">${volOf(d)}</span></label>
       </div>
-      <div class="mt-2 flex flex-wrap items-center gap-1.5" data-id="${sid}">
+      <div class="mt-2 sm:hidden">
+        <button data-id="${sid}" onclick="moreToggle(this)" class="h-8 px-4 rounded-full bg-[#e60000] hover:brightness-110 text-white text-xs font-medium">more <span class="chev inline-block transition" style="${open?'transform:rotate(180deg)':''}">▾</span></button>
+      </div>
+      <div class="${open?'flex':'hidden sm:flex'} flex-wrap items-center gap-1.5 mt-2" data-id="${sid}">
         <button onclick="ctl(this,'play_video')" class="${chip}">Start link</button>
         <button data-id="${sid}" data-name="${esc(d.name)}" onclick="pauseDev(this)" class="${chip}">Bypass</button>
         <button data-id="${sid}" data-name="${esc(d.name)}" onclick="renameDev(this)" class="${chip}">Hernoem</button>
@@ -219,6 +223,12 @@ async function restartGui(){
     try { const x=await fetch('api/status',{cache:'no-store'}); if(x.ok && tries>3){ clearInterval(t); location.reload(); } } catch {}
     if(tries>90){ clearInterval(t); document.body.style.opacity=''; document.body.style.pointerEvents=''; toast('GUI reageert niet. Controleer de container in Portainer.',false); }
   },2000);
+}
+function moreToggle(b){
+  const box=b.parentElement.nextElementSibling, open=box.classList.contains('hidden');
+  box.className=(open?'flex':'hidden sm:flex')+' flex-wrap items-center gap-1.5 mt-2';
+  b.querySelector('.chev').style.transform=open?'rotate(180deg)':'';
+  (window._open=window._open||{})[b.dataset.id]=open;
 }
 async function volSet(el){
   window._vol=window._vol||{}; window._vol[el.dataset.id]=el.value; window._devHtml=null;
